@@ -45,7 +45,7 @@ CHECKUP_SECTIONS = (
 )
 CHECKUP_TITLE = "CHECKUP  -  progress, achievements and what is missing"
 PREDICTOR_TITLE = "PREDICTOR  -  what the RNG has in store"
-EXTRAS_TITLE = "EXTRA DETAIL  -  skills, shipping, rarecrows and animals"
+EXTRAS_TITLE = "EXTRA DETAIL  -  inventory, chests, skills, shipping, rarecrows and animals"
 
 
 @dataclass(frozen=True)

@@ -5,6 +5,7 @@ single-animal buildings do not disappear because of XML array cardinality.
 """
 
 from .data import load_data
+from .inventory import inventory_text
 
 SKILLS = ("farming", "fishing", "foraging", "mining", "combat")
 XSI = "{http://www.w3.org/2001/XMLSchema-instance}type"
@@ -21,7 +22,7 @@ def players(root):
     candidates = [*root.findall("./farmhands/Farmer"), *root.findall(".//farmhand")]
     for player in candidates:
         identifier = player.findtext("UniqueMultiplayerID")
-        if player.findtext("name") and identifier not in seen:
+        if player.findtext("name") and (not identifier or identifier not in seen):
             seen.add(identifier)
             yield player
 
@@ -29,7 +30,7 @@ def players(root):
 def extras_text(root):
     names = load_data("item_names")
     farmers = list(players(root))
-    out = []
+    out = [inventory_text(root, farmers)]
     for player in farmers:
         who = player.findtext("name") + ": " if len(farmers) > 1 else ""
         out.append(
