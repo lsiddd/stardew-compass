@@ -1,0 +1,19 @@
+{
+  "1": {
+    "Type": "Arch",
+    "Name": "Test artifact",
+    "DisplayName": "[LocalizedText Strings\\Objects:test]",
+    "ArtifactSpotChances": {
+      "Town": 0.2,
+      "IslandNorth": 0.3
+    }
+  },
+  "2": {
+    "Type": "Arch",
+    "Name": "Other artifact",
+    "DisplayName": "Fallback",
+    "ArtifactSpotChances": {
+      "Town": 0.3
+    }
+  }
+}

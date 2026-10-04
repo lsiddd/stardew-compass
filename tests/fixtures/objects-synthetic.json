@@ -1,0 +1,190 @@
+{
+  "synthetic": {
+    "Name": "synthetic",
+    "DisplayName": "synthetic",
+    "Description": "synthetic",
+    "Type": "synthetic",
+    "Category": 3,
+    "Price": 3,
+    "Texture": "synthetic",
+    "SpriteIndex": 3,
+    "ColorOverlayFromNextIndex": true,
+    "Edibility": 3,
+    "IsDrink": true,
+    "Buffs": [
+      {
+        "Id": "synthetic",
+        "BuffId": "synthetic",
+        "IconTexture": "synthetic",
+        "IconSpriteIndex": 3,
+        "Duration": 3,
+        "IsDebuff": true,
+        "GlowColor": "synthetic",
+        "CustomAttributes": {
+          "CombatLevel": 0.1,
+          "FarmingLevel": 0.1,
+          "FishingLevel": 0.1,
+          "MiningLevel": 0.1,
+          "LuckLevel": 0.1,
+          "ForagingLevel": 0.1,
+          "MaxStamina": 0.1,
+          "MagneticRadius": 0.1,
+          "Speed": 0.1,
+          "Defense": 0.1,
+          "Attack": 0.1,
+          "AttackMultiplier": 0.1,
+          "Immunity": 0.1,
+          "KnockbackMultiplier": 0.1,
+          "WeaponSpeedMultiplier": 0.1,
+          "CriticalChanceMultiplier": 0.1,
+          "CriticalPowerMultiplier": 0.1,
+          "WeaponPrecisionMultiplier": 0.1
+        },
+        "CustomFields": {
+          "synthetic": "synthetic"
+        }
+      }
+    ],
+    "GeodeDropsDefaultItems": true,
+    "GeodeDrops": [
+      {
+        "Chance": 0.1,
+        "SetFlagOnPickup": "synthetic",
+        "Precedence": 3,
+        "Condition": "synthetic",
+        "Id": "synthetic (Recipe)",
+        "ItemId": "synthetic",
+        "RandomItemId": [
+          "synthetic"
+        ],
+        "MaxItems": 3,
+        "MinStack": 3,
+        "MaxStack": 3,
+        "Quality": 3,
+        "ObjectInternalName": "synthetic",
+        "ObjectDisplayName": "synthetic",
+        "ObjectColor": "synthetic",
+        "ToolUpgradeLevel": 3,
+        "IsRecipe": true,
+        "StackModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "StackModifierMode": 1,
+        "QualityModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "QualityModifierMode": 1,
+        "ModData": {
+          "synthetic": "synthetic"
+        },
+        "PerItemCondition": "synthetic"
+      },
+      {
+        "Chance": 1,
+        "SetFlagOnPickup": null,
+        "Precedence": 0,
+        "Condition": null,
+        "Id": "(O)1|(O)2 (Recipe)",
+        "ItemId": null,
+        "RandomItemId": [
+          "(O)1",
+          "(O)2"
+        ],
+        "MaxItems": null,
+        "MinStack": -1,
+        "MaxStack": -1,
+        "Quality": -1,
+        "ObjectInternalName": null,
+        "ObjectDisplayName": null,
+        "ObjectColor": null,
+        "ToolUpgradeLevel": -1,
+        "IsRecipe": true,
+        "StackModifiers": null,
+        "StackModifierMode": 0,
+        "QualityModifiers": null,
+        "QualityModifierMode": 0,
+        "ModData": null,
+        "PerItemCondition": null
+      },
+      {
+        "Chance": 1,
+        "SetFlagOnPickup": null,
+        "Precedence": 0,
+        "Condition": null,
+        "Id": "???",
+        "ItemId": null,
+        "RandomItemId": null,
+        "MaxItems": null,
+        "MinStack": -1,
+        "MaxStack": -1,
+        "Quality": -1,
+        "ObjectInternalName": null,
+        "ObjectDisplayName": null,
+        "ObjectColor": null,
+        "ToolUpgradeLevel": -1,
+        "IsRecipe": false,
+        "StackModifiers": null,
+        "StackModifierMode": 0,
+        "QualityModifiers": null,
+        "QualityModifierMode": 0,
+        "ModData": null,
+        "PerItemCondition": null
+      }
+    ],
+    "ArtifactSpotChances": {
+      "synthetic": 0.1
+    },
+    "CanBeGivenAsGift": true,
+    "CanBeTrashed": true,
+    "ExcludeFromFishingCollection": true,
+    "ExcludeFromShippingCollection": true,
+    "ExcludeFromRandomSale": true,
+    "ContextTags": [
+      "synthetic"
+    ],
+    "CustomFields": {
+      "synthetic": "synthetic"
+    }
+  },
+  "null": null,
+  "defaults": {
+    "Name": null,
+    "DisplayName": null,
+    "Description": null,
+    "Type": null,
+    "Category": 0,
+    "Price": 0,
+    "Texture": null,
+    "SpriteIndex": 0,
+    "ColorOverlayFromNextIndex": false,
+    "Edibility": -300,
+    "IsDrink": false,
+    "Buffs": null,
+    "GeodeDropsDefaultItems": false,
+    "GeodeDrops": null,
+    "ArtifactSpotChances": null,
+    "CanBeGivenAsGift": true,
+    "CanBeTrashed": true,
+    "ExcludeFromFishingCollection": false,
+    "ExcludeFromShippingCollection": false,
+    "ExcludeFromRandomSale": false,
+    "ContextTags": null,
+    "CustomFields": null
+  }
+}

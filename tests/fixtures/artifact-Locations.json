@@ -1,0 +1,139 @@
+{
+  "Default": {
+    "ArtifactSpots": [
+      {
+        "ItemId": "RANDOM_ARTIFACT_FOR_DIG_SPOT",
+        "RandomItemId": null,
+        "Chance": 0.8,
+        "Precedence": 0,
+        "Condition": "DAYS_PLAYED 2",
+        "MinStack": 1,
+        "MaxStack": 3,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": true
+      },
+      {
+        "ItemId": "SECRET_NOTE_OR_ITEM (O)390",
+        "RandomItemId": null,
+        "Chance": 0.4,
+        "Precedence": 1,
+        "Condition": "!PLAYER_LOCATION_NAME Target Farm, RANDOM 0.8",
+        "MinStack": 1,
+        "MaxStack": 1,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      },
+      {
+        "ItemId": "LOST_BOOK_OR_ITEM (O)770",
+        "RandomItemId": null,
+        "Chance": 0.6,
+        "Precedence": 1,
+        "Condition": "LOCATION_SEASON Here summer",
+        "MinStack": 1,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      },
+      {
+        "ItemId": "(O)330",
+        "RandomItemId": [
+          "(O)330",
+          "(O)390"
+        ],
+        "Chance": 1,
+        "Precedence": 2,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 5,
+        "StackModifiers": [
+          {
+            "Condition": "PLAYER_LUCK_LEVEL Target 2, PLAYER_MINING_LEVEL Target 3",
+            "Modification": 0,
+            "Amount": 2.7
+          }
+        ],
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": true
+      },
+      {
+        "ItemId": "(O)390",
+        "RandomItemId": null,
+        "Chance": 1,
+        "Precedence": 0,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      }
+    ]
+  },
+  "Town": {
+    "ArtifactSpots": [
+      {
+        "ItemId": "(O)390",
+        "RandomItemId": null,
+        "Chance": 1,
+        "Precedence": 0,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      }
+    ]
+  },
+  "IslandNorth": {
+    "ArtifactSpots": [
+      {
+        "ItemId": "(O)390",
+        "RandomItemId": null,
+        "Chance": 1,
+        "Precedence": 0,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      }
+    ]
+  },
+  "DesertFestival": {
+    "ArtifactSpots": [
+      {
+        "ItemId": "(O)390",
+        "RandomItemId": null,
+        "Chance": 1,
+        "Precedence": 0,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      }
+    ]
+  },
+  "Farm_Standard": {
+    "ArtifactSpots": [
+      {
+        "ItemId": "(O)390",
+        "RandomItemId": null,
+        "Chance": 1,
+        "Precedence": 0,
+        "Condition": null,
+        "MinStack": 2,
+        "MaxStack": 2,
+        "StackModifiers": null,
+        "ApplyGenerousEnchantment": true,
+        "ContinueOnDrop": false
+      }
+    ]
+  }
+}

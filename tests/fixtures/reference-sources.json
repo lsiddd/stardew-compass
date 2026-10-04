@@ -1,0 +1,16 @@
+{
+  "src/MapPredictor.Cli/ArtifactPredictor.cs": "a6a00c0ccb4945644ce0996dec9823670b3c64491e9476ff3c37a82d0bd04e84",
+  "src/MapPredictor.Cli/ArtifactState.cs": "d501448e887229eb014ac9a19c75fd63679867ac6c0677db77fa92cf6e968c91",
+  "src/MapPredictor.Cli/Program.cs": "ead89a0302bb59612686e439ffa121a1c37658d890525da76cb99a8ff9c0c8d9",
+  "src/MapPredictor.Cli/BubblePredictor.cs": "b6fd61a86b3488e2180a248ea4a77824c2977ae5877781d6809f7997dadcc74b",
+  "src/MapPredictor.Cli/SeedRandom.cs": "1f16375a5ec1b62f73f8b5e2e54379cd6d62ee0d03b2ad4538968ffaa8d7ed94",
+  "src/MapPredictor.Cli/SaveSnapshot.cs": "074d8b43cd495e499b58c6883345bf7fada8bd34c506e391715a17f45a82cacf",
+  "src/MapPredictor.Cli/TileSet.cs": "e7265c9fb680d8b42ac1dbd48b03b72b4525398154efb38c1b39b93318b52bed",
+  "src/MapPredictor.Cli/Tile.cs": "8decd25fd370568abf63f9333fb1d791c78f36b28ab6e4fb5513498235089f32",
+  "src/MapPredictor.Cli/Layer.cs": "010f05fad6186112b868f004b4d37a26a716020fe17ab35e3e6ff73de4afd37a",
+  "src/MapPredictor.Cli/Map.cs": "aabe6479fd5fff66f900b31739398e9ef73e2591b161bcbfd2aba04475934ad6",
+  "tests/MapPredictor.Checks/ArtifactChecks.cs": "163093fdb270ca33d2c40d50134bb1c347a2bf94c5861babf3e8791943e661e7",
+  "tests/MapPredictor.Checks/Program.cs": "81b99a34470675d127421a7471484b98e171348f68843a057853605f4a838557",
+  "tests/MapPredictor.Checks/OriginalBubbleOracle.cs": "745ce96cba03b707477569d381b732f206c56e7b20bfb75d74754ba33b741d4e",
+  "tools/MapPredictor.DataExport/Program.cs": "fbb168221a9a4fa307b572ee5192daca4d57d151f90796d7f300cfa96f76f760"
+}

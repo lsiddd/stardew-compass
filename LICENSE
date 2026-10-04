@@ -21,4 +21,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Third-party components retain their respective copyright notices.
-See stardew_report/data/LICENSES.txt for their license terms.
+See THIRD_PARTY_NOTICES.md and src/stardew/resources/LICENSES.txt for their license terms.

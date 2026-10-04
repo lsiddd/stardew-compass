@@ -1,21 +1,38 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "stardew-report"
-version = "2.0.0"
-description = "Native Python Stardew Valley progress and RNG reports"
+name = "stardew"
+version = "3.0.0"
+description = "Shared save analysis, progress, predictions and maps for Stardew Valley"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-dependencies = ["lxml>=5,<7", "cssselect>=1.2,<2", "html5lib>=1.1,<2", "xxhash>=3,<5"]
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+dependencies = ["lxml>=5,<7", "xxhash>=3,<5"]
+
+[project.urls]
+Repository = "https://github.com/lsiddd/stardew-compass"
+Documentation = "https://github.com/lsiddd/stardew-compass#readme"
+Issues = "https://github.com/lsiddd/stardew-compass/issues"
+
+[project.optional-dependencies]
+plot = ["Pillow>=10.1"]
+test = ["pytest>=8", "Pillow>=10.1", "build>=1.2"]
 
 [project.scripts]
-stardew-report = "stardew_report.cli:main"
+stardew = "stardew.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["stardew_report*"]
+where = ["src"]
+include = ["stardew*"]
 
 [tool.setuptools.package-data]
-stardew_report = ["data/*.json", "data/*.html", "data/*.txt"]
+"stardew" = ["py.typed"]
+"stardew.resources" = ["*.json", "*.txt", "catalogs/*.json", "fonts/*.ttf", "fonts/*.txt"]
+"stardew.infrastructure.xnb" = ["schemas.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"

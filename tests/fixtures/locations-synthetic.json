@@ -1,0 +1,335 @@
+{
+  "synthetic": {
+    "DisplayName": "synthetic",
+    "DefaultArrivalTile": {
+      "X": -7,
+      "Y": 11
+    },
+    "ExcludeFromNpcPathfinding": true,
+    "CreateOnLoad": {
+      "MapPath": "synthetic",
+      "Type": "synthetic",
+      "AlwaysActive": true
+    },
+    "FormerLocationNames": [
+      "synthetic"
+    ],
+    "CanPlantHere": true,
+    "CanHaveGreenRainSpawns": true,
+    "ArtifactSpots": [
+      {
+        "Chance": 0.1,
+        "ApplyGenerousEnchantment": true,
+        "OneDebrisPerDrop": true,
+        "Precedence": 3,
+        "ContinueOnDrop": true,
+        "Condition": "synthetic",
+        "Id": "synthetic (Recipe)",
+        "ItemId": "synthetic",
+        "RandomItemId": [
+          "synthetic"
+        ],
+        "MaxItems": 3,
+        "MinStack": 3,
+        "MaxStack": 3,
+        "Quality": 3,
+        "ObjectInternalName": "synthetic",
+        "ObjectDisplayName": "synthetic",
+        "ObjectColor": "synthetic",
+        "ToolUpgradeLevel": 3,
+        "IsRecipe": true,
+        "StackModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "StackModifierMode": 1,
+        "QualityModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "QualityModifierMode": 1,
+        "ModData": {
+          "synthetic": "synthetic"
+        },
+        "PerItemCondition": "synthetic"
+      }
+    ],
+    "FishAreas": {
+      "synthetic": {
+        "DisplayName": "synthetic",
+        "Position": {
+          "Left": -3,
+          "Right": 12,
+          "Top": 4,
+          "Bottom": -5,
+          "IsEmpty": false,
+          "Location": {
+            "X": -3,
+            "Y": 4
+          },
+          "Size": {
+            "X": 15,
+            "Y": -9
+          },
+          "Center": {
+            "X": 4,
+            "Y": 0
+          },
+          "X": -3,
+          "Y": 4,
+          "Width": 15,
+          "Height": -9
+        },
+        "CrabPotFishTypes": [
+          "synthetic"
+        ],
+        "CrabPotJunkChance": 0.1
+      }
+    },
+    "Fish": [
+      {
+        "Chance": 0.1,
+        "Season": 1,
+        "FishAreaId": "synthetic",
+        "BobberPosition": {
+          "Left": -3,
+          "Right": 12,
+          "Top": 4,
+          "Bottom": -5,
+          "IsEmpty": false,
+          "Location": {
+            "X": -3,
+            "Y": 4
+          },
+          "Size": {
+            "X": 15,
+            "Y": -9
+          },
+          "Center": {
+            "X": 4,
+            "Y": 0
+          },
+          "X": -3,
+          "Y": 4,
+          "Width": 15,
+          "Height": -9
+        },
+        "PlayerPosition": {
+          "Left": -3,
+          "Right": 12,
+          "Top": 4,
+          "Bottom": -5,
+          "IsEmpty": false,
+          "Location": {
+            "X": -3,
+            "Y": 4
+          },
+          "Size": {
+            "X": 15,
+            "Y": -9
+          },
+          "Center": {
+            "X": 4,
+            "Y": 0
+          },
+          "X": -3,
+          "Y": 4,
+          "Width": 15,
+          "Height": -9
+        },
+        "MinFishingLevel": 3,
+        "MinDistanceFromShore": 3,
+        "MaxDistanceFromShore": 3,
+        "ApplyDailyLuck": true,
+        "CuriosityLureBuff": 0.1,
+        "SpecificBaitBuff": 0.1,
+        "SpecificBaitMultiplier": 0.1,
+        "CatchLimit": 3,
+        "CanUseTrainingRod": true,
+        "IsBossFish": true,
+        "SetFlagOnCatch": "synthetic",
+        "RequireMagicBait": true,
+        "Precedence": 3,
+        "IgnoreFishDataRequirements": true,
+        "CanBeInherited": true,
+        "ChanceModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "ChanceModifierMode": 1,
+        "ChanceBoostPerLuckLevel": 0.1,
+        "UseFishCaughtSeededRandom": true,
+        "Condition": "synthetic",
+        "Id": "synthetic (Recipe)",
+        "ItemId": "synthetic",
+        "RandomItemId": [
+          "synthetic"
+        ],
+        "MaxItems": 3,
+        "MinStack": 3,
+        "MaxStack": 3,
+        "Quality": 3,
+        "ObjectInternalName": "synthetic",
+        "ObjectDisplayName": "synthetic",
+        "ObjectColor": "synthetic",
+        "ToolUpgradeLevel": 3,
+        "IsRecipe": true,
+        "StackModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "StackModifierMode": 1,
+        "QualityModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "QualityModifierMode": 1,
+        "ModData": {
+          "synthetic": "synthetic"
+        },
+        "PerItemCondition": "synthetic"
+      }
+    ],
+    "Forage": [
+      {
+        "Chance": 0.1,
+        "Season": 1,
+        "Condition": "synthetic",
+        "Id": "synthetic (Recipe)",
+        "ItemId": "synthetic",
+        "RandomItemId": [
+          "synthetic"
+        ],
+        "MaxItems": 3,
+        "MinStack": 3,
+        "MaxStack": 3,
+        "Quality": 3,
+        "ObjectInternalName": "synthetic",
+        "ObjectDisplayName": "synthetic",
+        "ObjectColor": "synthetic",
+        "ToolUpgradeLevel": 3,
+        "IsRecipe": true,
+        "StackModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "StackModifierMode": 1,
+        "QualityModifiers": [
+          {
+            "Id": "synthetic",
+            "Condition": "synthetic",
+            "Modification": 1,
+            "Amount": 0.1,
+            "RandomAmount": [
+              0.1
+            ]
+          }
+        ],
+        "QualityModifierMode": 1,
+        "ModData": {
+          "synthetic": "synthetic"
+        },
+        "PerItemCondition": "synthetic"
+      }
+    ],
+    "MinDailyWeeds": 3,
+    "MaxDailyWeeds": 3,
+    "FirstDayWeedMultiplier": 3,
+    "MinDailyForageSpawn": 3,
+    "MaxDailyForageSpawn": 3,
+    "MaxSpawnedForageAtOnce": 3,
+    "ChanceForClay": 0.1,
+    "Music": [
+      {
+        "Id": "synthetic",
+        "Track": "synthetic",
+        "Condition": "synthetic"
+      }
+    ],
+    "MusicDefault": "synthetic",
+    "MusicContext": 1,
+    "MusicIgnoredInRain": true,
+    "MusicIgnoredInSpring": true,
+    "MusicIgnoredInSummer": true,
+    "MusicIgnoredInFall": true,
+    "MusicIgnoredInFallDebris": true,
+    "MusicIgnoredInWinter": true,
+    "MusicIsTownTheme": true,
+    "CustomFields": {
+      "synthetic": "synthetic"
+    }
+  },
+  "defaults": {
+    "DisplayName": null,
+    "DefaultArrivalTile": null,
+    "ExcludeFromNpcPathfinding": false,
+    "CreateOnLoad": null,
+    "FormerLocationNames": [],
+    "CanPlantHere": null,
+    "CanHaveGreenRainSpawns": true,
+    "ArtifactSpots": [],
+    "FishAreas": {},
+    "Fish": [],
+    "Forage": [],
+    "MinDailyWeeds": 2,
+    "MaxDailyWeeds": 5,
+    "FirstDayWeedMultiplier": 15,
+    "MinDailyForageSpawn": 1,
+    "MaxDailyForageSpawn": 4,
+    "MaxSpawnedForageAtOnce": 6,
+    "ChanceForClay": 0.03,
+    "Music": [],
+    "MusicDefault": null,
+    "MusicContext": 0,
+    "MusicIgnoredInRain": false,
+    "MusicIgnoredInSpring": false,
+    "MusicIgnoredInSummer": false,
+    "MusicIgnoredInFall": false,
+    "MusicIgnoredInFallDebris": false,
+    "MusicIgnoredInWinter": false,
+    "MusicIsTownTheme": false,
+    "CustomFields": null
+  }
+}

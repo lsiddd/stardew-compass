@@ -1,0 +1,1 @@
+"""Shared Stardew analysis modules."""

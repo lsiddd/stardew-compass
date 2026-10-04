@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "fixture": "make_state() in tests/unit/test_progress.py",
+  "game_version": "1.6.15",
+  "rules_reference": "MouseyPounds checkup 8e48aa1; pinned port in Git history",
+  "metric_cases": [
+    {
+      "section_id": "money",
+      "metric_id": "cowpoke",
+      "count": 50000,
+      "goal": 50000
+    },
+    {
+      "section_id": "skills",
+      "metric_id": "maxed_skills",
+      "count": 3,
+      "goal": 5
+    },
+    {
+      "section_id": "skill_mastery",
+      "metric_id": "mastery_perks",
+      "count": 1,
+      "goal": 5
+    },
+    {
+      "section_id": "quests",
+      "metric_id": "a_big_help",
+      "count": 40,
+      "goal": 40
+    },
+    {
+      "section_id": "special_orders",
+      "metric_id": "town_special_orders",
+      "count": 1,
+      "goal": 18
+    },
+    {
+      "section_id": "monsters",
+      "metric_id": "protector_of_the_valley",
+      "count": 1,
+      "goal": 12
+    },
+    {
+      "section_id": "stardrops",
+      "metric_id": "stardrops",
+      "count": 3,
+      "goal": 7
+    },
+    {
+      "section_id": "family",
+      "metric_id": "full_house",
+      "count": 3,
+      "goal": 3
+    },
+    {
+      "section_id": "social",
+      "metric_id": "great_friends",
+      "count": 1,
+      "goal": 1
+    },
+    {
+      "section_id": "cooking",
+      "metric_id": "cooking",
+      "count": 1,
+      "goal": 81
+    },
+    {
+      "section_id": "crafting",
+      "metric_id": "crafting",
+      "count": 1,
+      "goal": 149
+    },
+    {
+      "section_id": "fishing",
+      "metric_id": "fishing",
+      "count": 2,
+      "goal": 72
+    },
+    {
+      "section_id": "basic_shipping",
+      "metric_id": "shipping",
+      "count": 2,
+      "goal": 155
+    },
+    {
+      "section_id": "crop_shipping",
+      "metric_id": "polyculture",
+      "count": 2,
+      "goal": 28
+    },
+    {
+      "section_id": "powers",
+      "metric_id": "books",
+      "count": 1,
+      "goal": 19
+    },
+    {
+      "section_id": "museum",
+      "metric_id": "complete_collection",
+      "count": 2,
+      "goal": 95
+    },
+    {
+      "section_id": "secret_notes",
+      "metric_id": "notes_read",
+      "count": 2,
+      "goal": 27
+    },
+    {
+      "section_id": "journal_scraps",
+      "metric_id": "notes_read",
+      "count": 1,
+      "goal": 11
+    },
+    {
+      "section_id": "bundles",
+      "metric_id": "bundle_0",
+      "count": 1,
+      "goal": 4
+    },
+    {
+      "section_id": "raccoons",
+      "metric_id": "good_neighbors",
+      "count": 1,
+      "goal": 1
+    },
+    {
+      "section_id": "grandpa",
+      "metric_id": "grandpa_score",
+      "count": 9,
+      "goal": 21
+    },
+    {
+      "section_id": "walnuts",
+      "metric_id": "golden_walnuts",
+      "count": 12,
+      "goal": 130
+    },
+    {
+      "section_id": "island_upgrades",
+      "metric_id": "island_upgrades",
+      "count": 1,
+      "goal": 11
+    },
+    {
+      "section_id": "perfection_tracker",
+      "metric_id": "obelisks",
+      "count": 1,
+      "goal": 4
+    },
+    {
+      "section_id": "arcade_games",
+      "metric_id": "prairie_king",
+      "count": 1,
+      "goal": 1
+    }
+  ],
+  "section_facts": {
+    "summary": {
+      "days_played": 120,
+      "day": 7,
+      "season": "spring",
+      "year": 2
+    },
+    "animals": {
+      "items": [
+        {
+          "name": "Cat",
+          "count": 1000,
+          "category": "pet"
+        },
+        {
+          "name": "Hen",
+          "count": 1,
+          "category": "farm_animal"
+        }
+      ]
+    }
+  },
+  "intentional_differences": [
+    {
+      "case": "gotMaxStamina with three stardrop markers",
+      "section_id": "perfection_tracker",
+      "metric_id": "stardrops",
+      "original_earned": 0,
+      "native_earned": 10
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked --extra test --extra plot
+      - run: uv run --locked pytest
+      - run: uv run --locked python -m build
+      - name: Verify installed wheel outside checkout
+        shell: bash
+        run: |
+          uv venv /tmp/stardew-wheel
+          uv pip install --python /tmp/stardew-wheel/bin/python pytest==9.1.1 Pillow==12.3.0 dist/*.whl
+          cd /tmp
+          /tmp/stardew-wheel/bin/stardew --version
+          /tmp/stardew-wheel/bin/python -c 'from stardew.api import load_game_data; assert "Town" in load_game_data().maps'
+          /tmp/stardew-wheel/bin/python -c 'import importlib.util; assert importlib.util.find_spec("stardew_report") is None; assert importlib.util.find_spec("stardew_map_predictor") is None'
+          /tmp/stardew-wheel/bin/python -I -m pytest "$GITHUB_WORKSPACE/tests" -q

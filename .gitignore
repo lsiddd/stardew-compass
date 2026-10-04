@@ -1,9 +1,10 @@
-*-report.txt
-*-report.json
+.venv/
 __pycache__/
 *.py[cod]
-.venv/
+*.egg-info/
+.pytest_cache/
 build/
 dist/
-*.egg-info/
-.ruff_cache/
+outputs/
+sunny_390938626-saida.txt
+sunny_390938626-report.txt

@@ -1,0 +1,24 @@
+{
+  "source": "MapPredictor source export, StardewValley.Properties.Resources.resx",
+  "sourceSha256": "5bd05fd60d840bed8adf07fcee1507697c4bd92a444cdb6da4113eb975a24448",
+  "maps": [
+    "Beach",
+    "Desert",
+    "Farm",
+    "Farm_Fishing",
+    "Forest",
+    "IslandNorth",
+    "IslandSouthEast",
+    "IslandWest",
+    "Mountain",
+    "Town",
+    "Woods"
+  ],
+  "description": "Only text JSON map resources retained; graphics and UI resources omitted.",
+  "conversion": {
+    "inputFormat": "RESX XML containing JSON maps",
+    "inputSha256": "3642e6f4cc560e19d9583428d9aa99b6a8764fff914560d27a8b54648795ab40",
+    "outputFormat": "JSON object keyed by map name",
+    "mapValuesChanged": false
+  }
+}
