@@ -57,7 +57,9 @@ def test_integer_and_single_semantics():
 
 @pytest.mark.parametrize(
     "case",
-    json.loads((FIXTURES / "game-seed-boundaries.json").read_text())["cases"],
+    json.loads((FIXTURES / "game-seed-boundaries.json").read_text(encoding="utf-8"))[
+        "cases"
+    ],
     ids=lambda case: f"{case['game_id']}_{case['legacy']}",
 )
 def test_game_dll_seed_boundaries(case):

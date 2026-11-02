@@ -84,7 +84,9 @@ def container(rows, name):
 @pytest.mark.parametrize("legacy", [False, True])
 def test_next_twenty_geodes_match_original_game_dll(save_factory, data, legacy):
     fixture = json.loads(
-        (Path(__file__).parents[1] / "fixtures/game-geode-results.json").read_text()
+        (Path(__file__).parents[1] / "fixtures/game-geode-results.json").read_text(
+            encoding="utf-8"
+        )
     )
     state = save_factory(game_id=fixture["game_id"], player_id=fixture["player_id"])
     state = replace(
@@ -307,7 +309,9 @@ def test_wallpaper_sort_keeps_ties_and_draws_for_excluded_items():
 
 
 ENCHANTMENT_REFERENCE = json.loads(
-    (Path(__file__).parents[1] / "fixtures/game-enchantment-rules.json").read_text()
+    (Path(__file__).parents[1] / "fixtures/game-enchantment-rules.json").read_text(
+        encoding="utf-8"
+    )
 )
 
 
@@ -338,7 +342,9 @@ def saved_tool(save_factory, *, kind, level, history="fresh", legacy=False):
     item = f'''<items><Item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="{kind}">
 <itemId>{kind}</itemId><name>Probe Tool</name>{upgrade}
 <enchantments>{current}</enchantments>{history_xml}</Item></items>'''
-    text = state.source.read_text().replace("</player>", item + "</player>")
+    text = state.source.read_text(encoding="utf-8").replace(
+        "</player>", item + "</player>"
+    )
     if legacy:
         text = text.replace("<useLegacyRandom>false", "<useLegacyRandom>true")
     state.source.write_text(text)
@@ -398,7 +404,7 @@ def test_saved_history_internal_names_and_snapshot_scope(save_factory, data):
         save_factory, kind="WateringCan", level=4, history="two_previous"
     )
     state.source.write_text(
-        state.source.read_text().replace(
+        state.source.read_text(encoding="utf-8").replace(
             "<string>Efficient</string>", "<string>Expansive</string>"
         )
     )
@@ -418,7 +424,7 @@ def test_saved_history_internal_names_and_snapshot_scope(save_factory, data):
 
 def saved_raccoon(save_factory, *, day=10, season=2, delivered=(False, False), last=0):
     state = save_factory()
-    text = state.source.read_text().replace(
+    text = state.source.read_text(encoding="utf-8").replace(
         "<dayOfMonth>1</dayOfMonth>", f"<dayOfMonth>{day}</dayOfMonth>"
     )
     text = text.replace("<daysPlayed>1</daysPlayed>", f"<daysPlayed>{day}</daysPlayed>")
@@ -474,7 +480,7 @@ def test_raccoon_cooldown_and_future_requests_remain_conditional(save_factory, d
 def mystery_seed_state(save_factory):
     state = save_factory(player_id=-2062291679424207820)
     state.source.write_text(
-        state.source.read_text().replace(
+        state.source.read_text(encoding="utf-8").replace(
             "<mailReceived>", "<mailReceived><string>GotMysteryBook</string>"
         )
     )
@@ -588,7 +594,9 @@ def test_raccoon_hat_keeps_its_qualified_game_id(save_factory, data):
 
 
 TOOL_SERIALIZATION_REFERENCE = json.loads(
-    (Path(__file__).parents[1] / "fixtures/game-tool-serialization.json").read_text()
+    (Path(__file__).parents[1] / "fixtures/game-tool-serialization.json").read_text(
+        encoding="utf-8"
+    )
 )
 
 
@@ -608,7 +616,9 @@ def test_original_tool_xml_roundtrip_preserves_enchantment_state(
     )
     xml = case["xml"].split("?>", 1)[1]
     state.source.write_text(
-        state.source.read_text().replace("</player>", f"<items>{xml}</items></player>")
+        state.source.read_text(encoding="utf-8").replace(
+            "</player>", f"<items>{xml}</items></player>"
+        )
     )
     state = load_save(state.source)
     item = state.player.inventory[0]

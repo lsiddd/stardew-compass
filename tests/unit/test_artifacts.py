@@ -24,7 +24,9 @@ def artifact_predictor(tmp_path_factory):
         freeze(
             {
                 name: json.loads(
-                    (FIXTURES / ("artifact-" + name + ".json")).read_text()
+                    (FIXTURES / ("artifact-" + name + ".json")).read_text(
+                        encoding="utf-8"
+                    )
                 )
                 for name in ("Objects", "Locations", "ObjectNames")
             }
@@ -117,7 +119,7 @@ def expected_result(case):
 
 @pytest.mark.parametrize(
     "case",
-    json.loads((FIXTURES / "artifacts.json").read_text()),
+    json.loads((FIXTURES / "artifacts.json").read_text(encoding="utf-8")),
     ids=lambda c: str(c["spot"]["X"]),
 )
 def test_csharp_artifacts(case, artifact_predictor):
@@ -206,7 +208,7 @@ def test_artifact_rules_use_shared_loaded_state(
 
     from stardew.infrastructure.saves.loader import load_save
 
-    case = json.loads((FIXTURES / "artifacts.json").read_text())[index]
+    case = json.loads((FIXTURES / "artifacts.json").read_text(encoding="utf-8"))[index]
     baseline, metadata = case["state"], case["state"]["Save"]
     root = ET.Element("SaveGame")
 

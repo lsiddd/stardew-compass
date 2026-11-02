@@ -131,7 +131,7 @@ def test_atomic_failure_keeps_previous_output(tmp_path):
     ):
         with pytest.raises(OSError):
             atomic_write(path, "replacement")
-    assert path.read_text() == "previous"
+    assert path.read_text(encoding="utf-8") == "previous"
     assert list(tmp_path.iterdir()) == [path]
 
 

@@ -131,7 +131,7 @@ def test_artifact_data_location_filter_and_single_read(
 def test_isolated_unavailable_features_fail(map_save, capsys):
     assert main(["predict", "artifacts", str(map_save)]) == 1
     assert "exported" in capsys.readouterr().err
-    original = map_save.read_text()
+    original = map_save.read_text(encoding="utf-8")
     map_save.write_text(original.replace("1.6.15", "1.7.0"))
     assert main(["predict", "bubbles", str(map_save)]) == 1
     assert "1.6.15" in capsys.readouterr().err
@@ -211,7 +211,7 @@ def test_json_file_and_text_results(map_save, capsys, tmp_path):
     assert main(args + ["--format", "json", "-o", str(output)]) == 0
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert json.loads(output.read_text()) == expected
+    assert json.loads(output.read_text(encoding="utf-8")) == expected
     assert main(args) == 0
     assert "Town" in capsys.readouterr().out
     assert not list(tmp_path.glob(".report.json.*"))
@@ -248,7 +248,7 @@ def test_cli_plot_validation_and_json_stability(
 
 
 def test_decimal_bounds_and_version_normalization(map_save, capsys):
-    original = map_save.read_text()
+    original = map_save.read_text(encoding="utf-8")
     map_save.write_text(original.replace("1.6.15", "01.06.015"))
     assert main(["predict", "bubbles", str(map_save), "--format", "json"]) == 0
     assert json.loads(capsys.readouterr().out)["metadata"]["game_version"] == "1.6.15"
@@ -304,7 +304,7 @@ def test_calendar_interval_spans_native_month_pages(map_save, capsys):
 
 @pytest.mark.parametrize("command", [("predict", "geode"), ("report",)])
 def test_default_geode_output_contains_only_next_openings(map_save, capsys, command):
-    original = map_save.read_text()
+    original = map_save.read_text(encoding="utf-8")
     map_save.write_text(
         original.replace(
             "<player>", "<player><UniqueMultiplayerID>101</UniqueMultiplayerID>"

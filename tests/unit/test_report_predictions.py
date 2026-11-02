@@ -451,7 +451,7 @@ def test_report_luck_defaults_are_independent_of_saved_luck(game):
 def test_missing_feature_requirements_are_explicit(game, tmp_path):
     state, data = game
     path = tmp_path / "old"
-    path.write_text(state.source.read_text().replace("1.6.15", "1.4"))
+    path.write_text(state.source.read_text(encoding="utf-8").replace("1.6.15", "1.4"))
     old = load_save(path)
     with pytest.raises(FeatureUnavailable, match="1.6"):
         analyze_predictions(old, data, ("mystery",))

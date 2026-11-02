@@ -60,7 +60,9 @@ def test_export_validates_every_input_before_writing(tmp_path):
     (output / "Objects.json").write_text("previous valid table")
     with pytest.raises(ValueError):
         export(game, output)
-    assert (output / "Objects.json").read_text() == "previous valid table"
+    assert (output / "Objects.json").read_text(
+        encoding="utf-8"
+    ) == "previous valid table"
     with pytest.raises(ValueError, match="outside"):
         export(game, game / "out")
 
@@ -82,10 +84,10 @@ def test_successful_synthetic_export_and_source_hashes(tmp_path):
     for name, data in sources.items():
         (game / name).write_bytes(data)
     export(game, out)
-    assert json.loads((out / "ObjectNames.json").read_text()) == {
+    assert json.loads((out / "ObjectNames.json").read_text(encoding="utf-8")) == {
         "synthetic": "Português"
     }
-    assert json.loads((out / "provenance.json").read_text()) == {
+    assert json.loads((out / "provenance.json").read_text(encoding="utf-8")) == {
         "sources": {
             name: hashlib.sha256(data).hexdigest().upper()
             for name, data in sources.items()
@@ -115,8 +117,8 @@ def test_export_refuses_symlink_before_replacing_any_table(tmp_path):
     (out / "Locations.json").symlink_to(target)
     with pytest.raises(ValueError, match="symbolic link"):
         export(game, out)
-    assert (out / "Objects.json").read_text() == "previous table"
-    assert target.read_text() == "personal data"
+    assert (out / "Objects.json").read_text(encoding="utf-8") == "previous table"
+    assert target.read_text(encoding="utf-8") == "personal data"
     assert not (out / "ObjectNames.json").exists()
 
 

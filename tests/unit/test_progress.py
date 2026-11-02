@@ -121,7 +121,9 @@ def get_metric(result, key):
 
 # Reference facts independently read from the pinned rules, one for every exposed section.
 REFERENCE = json.loads(
-    (Path(__file__).parents[1] / "fixtures" / "progress_reference_v2.json").read_text()
+    (Path(__file__).parents[1] / "fixtures" / "progress_reference_v2.json").read_text(
+        encoding="utf-8"
+    )
 )
 
 

@@ -30,8 +30,10 @@ from stardew.presentation.maps import rows_for_results
 from stardew.presentation.text import render_text
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
-ORACLE = json.loads((FIXTURES / "game-map-rules.json").read_text())
-CONTEXT_ORACLE = json.loads((FIXTURES / "game-artifact-contexts.json").read_text())
+ORACLE = json.loads((FIXTURES / "game-map-rules.json").read_text(encoding="utf-8"))
+CONTEXT_ORACLE = json.loads(
+    (FIXTURES / "game-artifact-contexts.json").read_text(encoding="utf-8")
+)
 
 
 def metadata(day, seed=390938626, fish_count=3):
@@ -60,7 +62,9 @@ def maps():
 def artifacts():
     return ArtifactPredictor(
         {
-            name: json.loads((FIXTURES / f"artifact-{name}.json").read_text())
+            name: json.loads(
+                (FIXTURES / f"artifact-{name}.json").read_text(encoding="utf-8")
+            )
             for name in ("Locations", "Objects", "ObjectNames")
         }
     )

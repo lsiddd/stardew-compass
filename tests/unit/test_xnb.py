@@ -30,7 +30,7 @@ def assert_ordered_equal(a, b):
 def test_monogame_synthetic_schemas(name):
     assert_ordered_equal(
         read_xnb(FIXTURES / (name + ".xnb")),
-        json.loads((FIXTURES / (name + ".json")).read_text()),
+        json.loads((FIXTURES / (name + ".json")).read_text(encoding="utf-8")),
     )
 
 

@@ -129,7 +129,9 @@ def test_day_seed_truncates_negative_odd_ids_like_csharp(legacy):
     # The expected samples were captured by calling Utility.CreateRandom in
     # the installed DLL, independently of the Python helper under test.
     vectors = json.loads(
-        (Path(__file__).parents[1] / "fixtures/game-seed-boundaries.json").read_text()
+        (Path(__file__).parents[1] / "fixtures/game-seed-boundaries.json").read_text(
+            encoding="utf-8"
+        )
     )
     case = next(
         case
@@ -148,7 +150,9 @@ def test_day_seed_truncates_negative_odd_ids_like_csharp(legacy):
 @pytest.mark.parametrize(
     "case",
     json.loads(
-        (Path(__file__).parents[1] / "fixtures/game-trash-seeds.json").read_text()
+        (Path(__file__).parents[1] / "fixtures/game-trash-seeds.json").read_text(
+            encoding="utf-8"
+        )
     )["cases"],
     ids=lambda case: f"{case['game_id']}-{'legacy' if case['legacy'] else 'hashed'}",
 )
