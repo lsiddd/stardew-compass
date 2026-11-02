@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
-from collections.abc import Mapping, Iterator
 from typing import Any
-import re
+
+from .saved_paths import compile_path, select
 
 
 def freeze(value: Any) -> Any:
@@ -41,61 +42,31 @@ class SaveNode:
         return self.content if self.content is not None else default
 
     def iter(self, tag: str | None = None) -> Iterator[SaveNode]:
-        if tag is None or tag == "*" or self.tag == tag:
-            yield self
-        for child in self.children:
-            yield from child.iter(tag)
+        pending = [self]
+        while pending:
+            node = pending.pop()
+            if tag is None or tag == "*" or node.tag == tag:
+                yield node
+            pending.extend(reversed(node.children))
 
     def itertext(self) -> Iterator[str]:
         for node in self.iter():
             if node.content is not None:
                 yield node.content
 
+    def iterfind(self, path: str) -> Iterator[SaveNode]:
+        nodes = iter((self,))
+        for step in compile_path(path):
+            nodes = select(nodes, step)
+        return nodes
+
     def findall(self, path: str) -> tuple[SaveNode, ...]:
-        if path in ("", "."):
-            return (self,)
-        path = path.removeprefix("./") if not path.startswith(".//") else path[1:]
-        # Child and descendant axes, with the small saved-field predicate syntax.
-        tokens = re.findall(r"//|/|(?:[^/\[]|\[[^\]]*\])+", path)
-        current: tuple[SaveNode, ...] = (self,)
-        descendants = False
-        for token in tokens:
-            if token == "//":
-                descendants = True
-                continue
-            if token in ("/", "", "."):
-                continue
-            match = re.fullmatch(r"([^\[]+)(?:\[(.+)\])?", token)
-            if match is None:
-                raise ValueError(f"Unsupported saved-field path: {path}")
-            tag, predicate = match.groups()
-            found = []
-            for node in current:
-                candidates = (
-                    (child for branch in node.children for child in branch.iter())
-                    if descendants
-                    else iter(node.children)
-                )
-                for child in candidates:
-                    if tag != "*" and child.tag != tag:
-                        continue
-                    if predicate:
-                        attr = re.fullmatch(r"@([^=]+)=['\"](.*)['\"]", predicate)
-                        check = re.fullmatch(r"([^=]+)=['\"](.*)['\"]", predicate)
-                        if attr and child.get(attr[1]) != attr[2]:
-                            continue
-                        if not attr and check and child.value(check[1]) != check[2]:
-                            continue
-                        if not attr and not check:
-                            raise ValueError(
-                                f"Unsupported saved-field predicate: {predicate}"
-                            )
-                    found.append(child)
-            current, descendants = tuple(found), False
-        return current
+        return tuple(self.iterfind(path))
 
     def find(self, path: str) -> SaveNode | None:
-        return next(iter(self.findall(path)), None)
+        if path.isidentifier():
+            return next((child for child in self.children if child.tag == path), None)
+        return next(self.iterfind(path), None)
 
     def value(self, path: str, default: str | None = None) -> str | None:
         node = self.find(path)
@@ -147,6 +118,12 @@ class ItemState:
 
 
 @dataclass(frozen=True, slots=True)
+class RelationshipState:
+    points: int
+    status: str
+
+
+@dataclass(frozen=True, slots=True)
 class PlayerState:
     name: str
     player_id: int | None
@@ -172,6 +149,18 @@ class PlayerState:
     achievements: frozenset[str] = frozenset()
     milliseconds_played: int | None = None
     use_separate_wallets: bool | None = None
+    collection_counts: Mapping[str, Mapping[str, int]] = field(
+        default_factory=lambda: freeze({})
+    )
+    friendship_facts: Mapping[str, RelationshipState] = field(
+        default_factory=lambda: freeze({})
+    )
+    legacy_friendship_facts: Mapping[str, RelationshipState] = field(
+        default_factory=lambda: freeze({})
+    )
+
+    def identity(self, index: int) -> str:
+        return str(self.player_id) if self.player_id is not None else f"player_{index}"
 
 
 @dataclass(frozen=True, slots=True)
@@ -207,12 +196,21 @@ class AnimalState:
 
 
 @dataclass(frozen=True, slots=True)
+class PlacedObjectState:
+    item_id: str | None
+    x: int | None
+    y: int | None
+
+
+@dataclass(frozen=True, slots=True)
 class LocationState:
     name: str | None
     kind: str | None
     buildings: tuple[BuildingState, ...]
     snapshot: SaveNode = field(repr=False)
     museum_items: tuple[str, ...] = ()
+    objects: tuple[PlacedObjectState, ...] = ()
+    bridge_fixed: bool | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -242,6 +240,18 @@ class WorldState:
     lost_books_found: int | None = None
     golden_coconut_cracked: bool | None = None
     game_version_label: str | None = None
+    active_order_keys: frozenset[str] = frozenset()
+    active_order_rules: frozenset[str] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
+class SaveIndex:
+    """Shared lookups prepared once by the loader, never serialized in reports."""
+
+    by_tag: Mapping[str, tuple[SaveNode, ...]]
+    objects_by_name: Mapping[str, tuple[SaveNode, ...]]
+    default_note_statues: frozenset[int]
+    characters: tuple[SaveNode, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,6 +261,7 @@ class GameState:
     players: tuple[PlayerState, ...]
     world: WorldState
     snapshot: SaveNode = field(repr=False)
+    index: SaveIndex | None = field(default=None, repr=False, compare=False)
 
     @property
     def player(self) -> PlayerState:

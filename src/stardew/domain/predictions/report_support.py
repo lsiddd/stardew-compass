@@ -5,22 +5,24 @@ Each function calculates facts in an isolated context; presentation never affect
 random-number consumption. Item pool insertion order is preserved explicitly.
 """
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
+from math import floor
+from math import fmod as _fmod
+from types import MappingProxyType
 from typing import Any
-from math import floor, fmod as _fmod
-import re
-from stardew.domain.models import freeze
+
 from stardew.domain.numeric import (
-    SystemRandom,
-    random_seed,
-    hash_string,
-    hash_array,
-    int32,
     MAX,
+    SystemRandom,
+    hash_array,
+    hash_string,
+    int32,
+    random_seed,
     trunc_div,
     trunc_rem,
 )
+from stardew.domain.values import GameVersion
 
 
 def fmod(left, right):
@@ -44,7 +46,8 @@ def ordered_keys(pool):
         if str(key).isdigit() and str(int(key)) == str(key) and (int(key) < 2**32 - 1)
     ]
     numeric.sort(key=int)
-    return numeric + [key for key in pool if key not in numeric]
+    numeric_keys = set(numeric)
+    return numeric + [key for key in pool if key not in numeric_keys]
 
 
 def set_slot(values, index, value):
@@ -72,26 +75,18 @@ def invalid_number(value):
 
 
 def exact_seed_part(value):
-    return trunc_rem(int(value), MAX)
+    """Legacy name: match the game's long-to-double conversion before modulo."""
+    return int(_fmod(float(value), MAX))
 
 
 def compare_version(a, b):
-
-    def parts(v):
-        fields = str(v).split(".")
-        return tuple(
-            (
-                int(re.match("\\d+", field)[0]) if re.match("\\d+", field) else -1
-                for field in fields[:3]
-            )
-        ) + (-1,) * max(0, 3 - len(fields))
-
-    return (parts(a) > parts(b)) - (parts(a) < parts(b))
+    left, right = GameVersion.parse(a), GameVersion.parse(b)
+    return (left > right) - (left < right)
 
 
 def immutable_fact(value):
     if isinstance(value, Mapping):
-        return freeze(
+        return MappingProxyType(
             {
                 str(key): immutable_fact(child)
                 for key, child in value.items()
@@ -113,7 +108,46 @@ class PredictionContext:
     count: int | None = None
     captures: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
     day_range: tuple[int, int] | None = None
+    selected_players: tuple[int, ...] | None = None
+    player_scoped: bool = False
+    record_sink: Callable[[str, Mapping[str, Any]], None] | None = None
 
 
 def capture(context, feature, facts):
-    context.captures.append((feature, deepcopy(facts)))
+    if context.record_sink is not None:
+        context.record_sink(feature, facts)
+    else:
+        context.captures.append((feature, deepcopy(facts)))
+
+
+def prediction_days(context: PredictionContext, offset: int) -> range:
+    start, stop = offset + 1, offset + 29
+    if context.day_range is not None:
+        start = max(start, context.day_range[0])
+        stop = min(stop, context.day_range[1])
+    return range(start, stop)
+
+
+__all__ = [
+    "SystemRandom",
+    "floor",
+    "fmod",
+    "random_seed",
+    "hash_string",
+    "hash_array",
+    "int32",
+    "MAX",
+    "trunc_div",
+    "trunc_rem",
+    "PredictionContext",
+    "capture",
+    "compare_version",
+    "deepcopy",
+    "exact_seed_part",
+    "immutable_fact",
+    "invalid_number",
+    "ordered_keys",
+    "prediction_days",
+    "remove_slice",
+    "set_slot",
+]

@@ -1,11 +1,11 @@
 """Installed-package imports and resource access outside the checkout."""
 
-from importlib import resources
 import json
-from pathlib import Path
 import subprocess
 import sys
 import tomllib
+from importlib import resources
+from pathlib import Path
 
 from stardew.infrastructure.game_data import load_game_data
 from stardew.resources import data_path
@@ -37,6 +37,7 @@ def test_bundled_catalogs_and_maps_are_reused_and_immutable():
     first, second = load_game_data(), load_game_data()
     assert first.maps is second.maps and first.catalogs is second.catalogs
     from dataclasses import FrozenInstanceError
+
     import pytest
 
     with pytest.raises(TypeError):

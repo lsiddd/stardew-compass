@@ -19,7 +19,14 @@ Issues = "https://github.com/lsiddd/stardew-compass/issues"
 
 [project.optional-dependencies]
 plot = ["Pillow>=10.1"]
-test = ["pytest>=8", "Pillow>=10.1", "build>=1.2"]
+test = ["pytest>=8", "Pillow>=10.1", "build>=1.2", "jsonschema>=4"]
+dev = [
+    "jsonschema>=4",
+    "mypy>=1.15",
+    "ruff>=0.11",
+    "types-jsonschema>=4.26.0.20261006",
+    "types-lxml>=2026.2.16",
+]
 
 [project.scripts]
 stardew = "stardew.cli:main"
@@ -36,3 +43,20 @@ include = ["stardew*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/stardew/domain/models", "src/stardew/domain/values.py", "src/stardew/domain/progress", "src/stardew/application", "src/stardew/cli", "src/stardew/domain/predictions/report_models.py", "src/stardew/domain/predictions/artifact_conditions.py", "src/stardew/infrastructure/data_files.py", "src/stardew/infrastructure/files.py", "src/stardew/infrastructure/streams.py", "src/stardew/presentation/json"]
+follow_imports = "silent"
+check_untyped_defs = true
+disallow_incomplete_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true

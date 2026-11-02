@@ -1,0 +1,652 @@
+{
+  "source": "Unmodified 1.6.15 DLL GetLocationContextId/GetSeason on actual xTile maps and original LocationContexts data; Helpers.RandomImpl with a controlled discrete RNG draw. This is not a whole-game dig simulation.",
+  "dll_sha256": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "LocationContexts_xnb_sha256": "4dad0d69bae21208591ad378d091491238833a6ce06e51be8c9026f14f2f3fa4",
+  "random_boundary": {
+    "draw": 0.40000000055879353,
+    "probability": "0.4",
+    "result": true
+  },
+  "maps": [
+    {
+      "name": "FarmHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "36fbb0103ff2bbba8ec5c8485d262bb7fde6f92efa2c5cf6bb2e35a8134fe9e8",
+      "map_season_override": null
+    },
+    {
+      "name": "FarmCave",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "a8330241c1d3b4335407a12336b108c3258b0b3fcf1e9c96a2b3f7f7fbcf2562",
+      "map_season_override": null
+    },
+    {
+      "name": "Town",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "4860eb9c47a3b888fc1c65cdb7045667db98022e8a33bb35061f29647b8bdbbd",
+      "map_season_override": null
+    },
+    {
+      "name": "JoshHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "46ac3206158294e26da3d56406b26876387619c789097a8b7296b80b6138c2ce",
+      "map_season_override": null
+    },
+    {
+      "name": "HaleyHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "7d2bafc52ba0da7612ab989db4867d1afe9d55c251c48daf675d4510ea32283d",
+      "map_season_override": null
+    },
+    {
+      "name": "SamHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "bc93cef52e7ff2d8ddce728ae0de7cb9c5d176c9261cec4157dc6e96fe77f919",
+      "map_season_override": null
+    },
+    {
+      "name": "Blacksmith",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "a6c4c4d2a74933ca99470b2b779fbeedeca133ecba2622c3d6e1aa67ed1781da",
+      "map_season_override": null
+    },
+    {
+      "name": "ManorHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "448f78bc00485848d62a84c87258a6f0f84d09a13370c04735444063fe37c6c5",
+      "map_season_override": null
+    },
+    {
+      "name": "SeedShop",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "8b484e456edb1e24171cb97ecbd062079d553b13417b3a4a47995ecae97a0075",
+      "map_season_override": null
+    },
+    {
+      "name": "Saloon",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "2442571e5a2a3c04058f1313c7f7fd24d452b00d1d95eb47747fa8182c53e4fb",
+      "map_season_override": null
+    },
+    {
+      "name": "Trailer",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "28cbfbb7db7ff0951f2220a4ce3095d356c87296f537891f5a6088bf07c6f1d5",
+      "map_season_override": null
+    },
+    {
+      "name": "Hospital",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "9d9511c5ce9a9647a492ccdc6993a3c65abb2d23e82cc34949aa6085838dde45",
+      "map_season_override": null
+    },
+    {
+      "name": "HarveyRoom",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "e6f7615597b19950d791b8eb2d6d5354e8ddbc10a2a06d8f65ac9189ade4ac18",
+      "map_season_override": null
+    },
+    {
+      "name": "Beach",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "02ef6a79506fd769ab7f0567cf67c16792a1d13b5389826f08831faf5200026c",
+      "map_season_override": null
+    },
+    {
+      "name": "BeachNightMarket",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "54f284d442a89aaf7037bf3030961192019bff3ee321d8b408f87da7f327a339",
+      "map_season_override": null
+    },
+    {
+      "name": "ElliottHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "318e2cd920ae68389a647f8212d1bbaccd873b8b0e406b5330dab1ea558adb3c",
+      "map_season_override": null
+    },
+    {
+      "name": "Mountain",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "c32e9acc016fcce8a94764662e2b947f727293872f64f408ca1e88382bc27ed3",
+      "map_season_override": null
+    },
+    {
+      "name": "ScienceHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "f47fabecd8b2db47fe83562eb2ef64a3b3122c4e282d45e7235b7c34cfe68b40",
+      "map_season_override": null
+    },
+    {
+      "name": "SebastianRoom",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "5b9f93240a55c071c92f5a116194d958ed94bb54647d5c9b4c071171453fc368",
+      "map_season_override": null
+    },
+    {
+      "name": "Tent",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "d74ab32e6882768eb7932d826d05aebd12693b2f50284c3fa7470d4950ad9e1d",
+      "map_season_override": null
+    },
+    {
+      "name": "Forest",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "3fe64eef5121248fb4ac0c1a3bea159e9f51d97c81faebd96c5c27a5a46cde31",
+      "map_season_override": null
+    },
+    {
+      "name": "WizardHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "95c6a456e77ed3763011eb1fa15b362a1d744cf03ef881583306d6d6efa63ace",
+      "map_season_override": null
+    },
+    {
+      "name": "AnimalShop",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "e3f26d9426b0aaed1af74d2c7075ccf762225b6b46484d56fe8a49c0794be1ed",
+      "map_season_override": null
+    },
+    {
+      "name": "LeahHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "03cac007359d2a00e1c39cc1381be4f25c129e225ecdd30481f90ba4a0e26d43",
+      "map_season_override": null
+    },
+    {
+      "name": "BusStop",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "28edb55c7a059718f09b00dcf061aff08369eb7ea768064cff3d13fdaeb7c1d6",
+      "map_season_override": null
+    },
+    {
+      "name": "Mine",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "a8669be89fd338360bbe637df3c383f3dc5f0d50b1028ad7385aeb39f6e700ff",
+      "map_season_override": null
+    },
+    {
+      "name": "Sewer",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "fa52de76f8fd9a6be90d115d24784bc49b952f30fccdc72dd0f622329c2fcf1b",
+      "map_season_override": null
+    },
+    {
+      "name": "BugLand",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "9867f3978757f222a33269ccc4a6834c3a10fb73a37bbb9362f82651a7bb12ee",
+      "map_season_override": null
+    },
+    {
+      "name": "Desert",
+      "context": "Desert",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "190b331e4c70887fee2c91856b2173f7c643b6d37dcb56679f2a6eb89ad9c998",
+      "map_season_override": null
+    },
+    {
+      "name": "Club",
+      "context": "Desert",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "f03eb41a2b84cd3e9f2510578823fed0d051d255437ed559b90d4aa9568c3c6d",
+      "map_season_override": null
+    },
+    {
+      "name": "SandyHouse",
+      "context": "Desert",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "dccbacdd575e0bbb2f3d4a5f19467a019b5e8f12efb31d6465cf1ec8c5822e34",
+      "map_season_override": null
+    },
+    {
+      "name": "ArchaeologyHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "1c28057c6c19512b5a556d81e79e145c845c1386887168b8afcd3c1bba8202aa",
+      "map_season_override": null
+    },
+    {
+      "name": "WizardHouseBasement",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "150a5028701463e7dbea10590f2ee08fcb655254fe980f430fe607968befda35",
+      "map_season_override": null
+    },
+    {
+      "name": "AdventureGuild",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "1ba908a857866fbb3a9145e1792344644c842e85b2427252d61275c55fafb5ef",
+      "map_season_override": null
+    },
+    {
+      "name": "Woods",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "61a9f3399d122ac74410b26b6786e33cdce8649dc58e3ebf60d5e1f4d6a0e906",
+      "map_season_override": null
+    },
+    {
+      "name": "Railroad",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "272c43d7cb26ebda9b810273ae7bd01109d684a3fd8102c0d611dc3acb70742d",
+      "map_season_override": null
+    },
+    {
+      "name": "WitchSwamp",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "6fbaa6ab677e384129bff94bb89749dbb7a3b4cd6444c30ceb7c14bcb4a533b8",
+      "map_season_override": null
+    },
+    {
+      "name": "WitchHut",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "6f6336e35fb92c44e12f5d86227048f9b735c6a1cb3268a50eaee8fb59c83c8b",
+      "map_season_override": null
+    },
+    {
+      "name": "WitchWarpCave",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "6084f014f67cf710682d9c671ad5cb27abc5340e8e988ba0b762c98ceb07e4f1",
+      "map_season_override": null
+    },
+    {
+      "name": "Summit",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "3887327934e14ca5a81a7ed2ef0895770eebf63cba60bca840139e093c39b4a3",
+      "map_season_override": null
+    },
+    {
+      "name": "FishShop",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "43765c94edbf341e1f29c7f9ca7df41c769bf2092bce628c811601695140fe9f",
+      "map_season_override": null
+    },
+    {
+      "name": "BathHouse_Entry",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "62167777394e3dc6318fdfdeed56985f8d6a096a5b9344eba98cbf2cb921e257",
+      "map_season_override": null
+    },
+    {
+      "name": "BathHouse_MensLocker",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "d4f9a0ae1d808cf40e2c4e6aeadb8250937f6b4b91848d423904c0a44c6aec5f",
+      "map_season_override": null
+    },
+    {
+      "name": "BathHouse_WomensLocker",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "b473ac6cde60a86e6506b61c37bcaf661d414bfae1faf968893ca64110869788",
+      "map_season_override": null
+    },
+    {
+      "name": "BathHouse_Pool",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "8635fadcb56cf27f9eba20706e981850b1020c1abc11cf3f6226343005b9edbc",
+      "map_season_override": null
+    },
+    {
+      "name": "CommunityCenter",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "d6cf5169d1fed9a27e4f7f5e49767339a4ad6e618ad832ca697bb86acfad07f4",
+      "map_season_override": null
+    },
+    {
+      "name": "JojaMart",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "2a617cadb055c20f86cdeab7917ee560ff882c697cd7536aea9486cb9d196e4a",
+      "map_season_override": null
+    },
+    {
+      "name": "Greenhouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "71e06acc3148c67d0be646bccf8aa00176fc3173c175a9faa415e90489956a15",
+      "map_season_override": null
+    },
+    {
+      "name": "SkullCave",
+      "context": "Desert",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "b7edac35276867bea566694c4e794c9e1f3231afb920d159c4c571a8d26b176a",
+      "map_season_override": null
+    },
+    {
+      "name": "Backwoods",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "385c4d1134bf0728da95b93db618d2dde092e94901aa3b11f083bb4179eab3f1",
+      "map_season_override": null
+    },
+    {
+      "name": "Tunnel",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "f15ea637b7e25f87dffb07352f5faa65f035ebfa72c4af49a48be36551d2cd93",
+      "map_season_override": null
+    },
+    {
+      "name": "Trailer_Big",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "73eb63d2eae6ba71287eab0a8db3596bd571b97e770a95ccbca35e3cdb324d94",
+      "map_season_override": null
+    },
+    {
+      "name": "Cellar",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "c9973e85fb716307a37dbb7325704acffd2f446107242b68d12fc12e78ccf8d2",
+      "map_season_override": null
+    },
+    {
+      "name": "MermaidHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "b7f6c64265ef09d10efff6a4e3a0682c1a600415e52c1a09333b2d08d14cf81b",
+      "map_season_override": null
+    },
+    {
+      "name": "Submarine",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "9aad7dd2f74e826ae949714ac53c60d474278fefc289480c71093e4c21a64c75",
+      "map_season_override": null
+    },
+    {
+      "name": "AbandonedJojaMart",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "4e12263692f668472772cc1d2d3452e604b2434e451bf4e554f0faf10d5ad79c",
+      "map_season_override": null
+    },
+    {
+      "name": "MovieTheater",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "c988bf1bc81d24107acf23456d0f3701ba52571da8826354cc121df50cc4510b",
+      "map_season_override": null
+    },
+    {
+      "name": "Sunroom",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "056cff34ffe272cf99e4f5b1844edf013d9d0eb13fd0f15cb00a2da18da648cc",
+      "map_season_override": null
+    },
+    {
+      "name": "BoatTunnel",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "b6014ce4e71d44571e63080a00f62f70bfa42e10ff4af70a9674ac20121ef201",
+      "map_season_override": null
+    },
+    {
+      "name": "IslandSouth",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "ee048a8111319ffa9e0bfb3ce1ec05ccba127a8faca3362bc66c0de573a5d760",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandSouthEast",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "f5bd47991ba462642c182d2690b7f38cda7e9cc8ff007967e1336108f0587607",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandSouthEastCave",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "2dd09b9bbeccda0f68b24b45f5f1bd6abd79d104aaca5d3141b834533ec0d958",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandEast",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "dfeb48b1e1da8e884dfedb49dd34beb4d67ba7f0b8f9e1ef5177286bdef67f4e",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandWest",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "bf88c167f562e8de90db955c9d652d1a150989576fbd865fa112f96ba852d271",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandNorth",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "60b0cb04d78549b8a585a8869b4956f9124d4a0493e82b581ef68211fd6b2bf3",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandHut",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "c959fa307f634b206c49144384a16492599092bdf18cdd1d751f989dd602d9f9",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandWestCave1",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "44155639e068127dfefa6bcea79a2d0dfc0ed9658fa8a7fb8c3ebdf10f68c537",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandNorthCave1",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "30809d4fdae8472aef1477bc1aafd49ccc0e70aab69b15431fff50b6f4b12fb0",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandFieldOffice",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "7ee4928a0ae4b28d213926034c81ba4053036221f055063747ef6691d7959d57",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandFarmHouse",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "adde3e4d5c122e0fdbbd2a86bc73312bdd313ae7df22d522013dea4eb6c799b3",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "CaptainRoom",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "dbc4777194d211b0ab898dd358fb211d47193f673202efc584e1cbe8a5c884ed",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandShrine",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "717c2a634fe328e1ddf668ce76a47f4b17d36ae8ec0ef8fb5966ced7ebd25da4",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "IslandFarmCave",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "3c1b9e2d1475fe32bdf949a657c03fc1b618dc586900c033383ea255d1005e05",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "Caldera",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "97e98775975e2ef4b94a73178e96aab0ac4307be3ba65b9b9f880fa02c7f9b52",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "LeoTreeHouse",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "960eebaf7506cbe574cb87841c117a0c42c88f5c71597e7007652c22b286f83a",
+      "map_season_override": null
+    },
+    {
+      "name": "QiNutRoom",
+      "context": "Island",
+      "season_in_winter": "Summer",
+      "island_artifact_override": true,
+      "sha256": "8d3aec684859d2475810b2d1d6490222c9d98b546080ff9972af5c6288dbdd5f",
+      "map_season_override": "summer"
+    },
+    {
+      "name": "MasteryCave",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "03c1f40748cc025e0ad0587341f606bfbc438fb2b78085e60951ceb6d3912af6",
+      "map_season_override": null
+    },
+    {
+      "name": "DesertFestival",
+      "context": "Desert",
+      "season_in_winter": "Summer",
+      "island_artifact_override": false,
+      "sha256": "f6231ae5e6629b56d6fb9c73324b15d92d186f8712d5b32fd1cb823a4663d815",
+      "map_season_override": null
+    },
+    {
+      "name": "LewisBasement",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "eba1ce2cf0ca6da752b908f4d7a5e7cbabafdb3f531466a47d5abe53df6536cf",
+      "map_season_override": null
+    },
+    {
+      "name": "Farm",
+      "context": "Default",
+      "season_in_winter": "Winter",
+      "island_artifact_override": false,
+      "sha256": "1f383106dbef261eabde1fdd7ec97f56a7d0e1d59aad4d67e3c05ee5700e561c",
+      "map_season_override": null
+    }
+  ]
+}

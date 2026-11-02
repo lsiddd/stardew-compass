@@ -7,6 +7,8 @@ import xxhash
 
 MAX = 2147483647
 MASK = 0xFFFFFFFF
+_SEED_INDICES = tuple(21 * i % 55 for i in range(1, 55))
+_MIX_INDICES = tuple((i, 1 + (i + 30) % 55) for i in range(1, 56))
 
 
 def i32(value):
@@ -30,21 +32,28 @@ class SystemRandom:
         seed = int32(seed)
         subtraction = MAX if seed == -(2**31) else abs(seed)
         mj = 161803398 - subtraction
-        self.values = [0] * 56
-        self.values[55] = mj
+        values = self.values = [0] * 56
+        values[55] = mj
         mk = 1
-        for i in range(1, 55):
-            ii = 21 * i % 55
-            self.values[ii] = mk
-            mk = i32(mj - mk)
+        for ii in _SEED_INDICES:
+            values[ii] = mk
+            # Both terms fit the signed range here, including the first seed.
+            mk = mj - mk
             if mk < 0:
                 mk += MAX
-            mj = self.values[ii]
+            mj = values[ii]
         for _ in range(4):
-            for i in range(1, 56):
-                self.values[i] = i32(self.values[i] - self.values[1 + (i + 30) % 55])
-                if self.values[i] < 0:
-                    self.values[i] += MAX
+            for i, partner in _MIX_INDICES:
+                value = values[i] - values[partner]
+                # The initially negative slot 55 can overflow on the first
+                # pass. Preserve unchecked Int32 subtraction before correction.
+                if value > MAX:
+                    value -= 4294967296
+                elif value < -2147483648:
+                    value += 4294967296
+                if value < 0:
+                    value += MAX
+                values[i] = value
         self.index, self.partner = 0, 21
 
     def sample(self):
@@ -79,9 +88,8 @@ class SystemRandom:
         return int(((value + MAX - 1) / (2 * MAX - 1)) * width) + low
 
 
-# Both clients use one generator. Seed construction deliberately remains separate:
-# the report applies fmod/floor to floating-point operands; map rules truncate
-# integer division and signed remainder before hashing.
+# Share the seeded generator and Utility.CreateRandom double coercion.
+# Integer division occurs at call sites before values enter the double API.
 Random = SystemRandom
 CSRandom = SystemRandom
 trunc_div = div
@@ -110,29 +118,32 @@ def hash_array(*values: int | float) -> int:
 
 
 def random_seed(*values: int | float, legacy: bool = False) -> int:
-    """Report seed construction, including its floor of negative fractions."""
+    """Utility.CreateRandomSeed: convert operands to double before remainder."""
     if len(values) > 5:
         raise ValueError("A random seed accepts at most five components.")
     parts = [math.fmod(v, MAX) for v in values] + [0] * (5 - len(values))
-    return math.floor(math.fmod(sum(parts), MAX)) if legacy else hash_array(*parts)
+    if legacy:
+        # C# adds left-to-right; Python 3.12+ sum compensates floating error.
+        total = parts[0]
+        for part in parts[1:]:
+            total += part
+        return math.trunc(math.fmod(total, MAX))
+    return hash_array(*parts)
 
 
 def create_seed(*values: int, legacy: bool = False) -> int:
-    """Map seed construction, with exact signed integer remainders."""
-    if len(values) > 5:
-        raise ValueError("A random seed accepts at most five components.")
-    parts = [rem(int(v), MAX) for v in values] + [0] * (5 - len(values))
-    return rem(sum(parts), MAX) if legacy else hash_array(*parts)
+    """Compatibility alias for the game's double-parameter seed method."""
+    return random_seed(*values, legacy=legacy)
 
 
 def for_day(state, a: int, b: int, c: int = 0) -> SystemRandom:
     metadata = getattr(state, "metadata", state)
     parts = (
-        rem(metadata.days_played, MAX),
-        rem(div(metadata.game_id, 2), MAX),
+        metadata.days_played,
+        div(metadata.game_id, 2),
         i32(a),
         i32(b),
         i32(c),
     )
-    seed = rem(sum(parts), MAX) if metadata.use_legacy_random else hash_array(*parts)
+    seed = random_seed(*parts, legacy=bool(metadata.use_legacy_random))
     return SystemRandom(seed)

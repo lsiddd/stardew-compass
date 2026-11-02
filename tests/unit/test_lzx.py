@@ -1,5 +1,7 @@
 import struct
+
 import pytest
+
 from stardew.infrastructure.xnb.lzx import LzxDecoder, decompress_frames
 
 

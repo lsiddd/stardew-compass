@@ -1,0 +1,58 @@
+{
+  "source": "Unmodified Utility.CreateDaySaveRandom, CreateRandomSeed and HashUtility.GetDeterministicHashCode, .NET 6",
+  "sha256": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "cases": [
+    {
+      "game_id": 7,
+      "legacy": false,
+      "day": 123,
+      "can": "JodiAndKent",
+      "extra": -443705963,
+      "seed": -894331402,
+      "draws": [
+        870377276,
+        986866262,
+        586266560
+      ]
+    },
+    {
+      "game_id": 7,
+      "legacy": true,
+      "day": 123,
+      "can": "JodiAndKent",
+      "extra": -443705963,
+      "seed": -443705837,
+      "draws": [
+        61247235,
+        271669077,
+        291685045
+      ]
+    },
+    {
+      "game_id": 9007199254740995,
+      "legacy": false,
+      "day": 123,
+      "can": "JodiAndKent",
+      "extra": -443705963,
+      "seed": -1811859800,
+      "draws": [
+        16971124,
+        1289193738,
+        852845445
+      ]
+    },
+    {
+      "game_id": 9007199254740995,
+      "legacy": true,
+      "day": 123,
+      "can": "JodiAndKent",
+      "extra": -443705963,
+      "seed": -441608687,
+      "draws": [
+        1676902820,
+        585461548,
+        1012745496
+      ]
+    }
+  ]
+}

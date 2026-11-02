@@ -1,7 +1,14 @@
 """World quests, notes, walnuts, community development and island upgrades."""
 
 from .common import counts, dictionary, integer, number, object_type, value, values
-from .models import ProgressItem, ProgressResult, facts, metric
+from .models import (
+    CompletionContribution,
+    ProgressItem,
+    ProgressMetric,
+    ProgressResult,
+    facts,
+    metric,
+)
 
 
 def summary(ctx):
@@ -109,25 +116,31 @@ def special_orders(ctx):
 
 def notes(ctx, journal=False):
     players = []
-    default_statues = set()
-    for location in ctx.locations():
-        if value(location, "name") != "Town":
-            continue
-        for entry in location.findall(".//item"):
-            node = entry.find("value/Object")
-            if (
-                node is not None
-                and value(node, "name") == "Stone Junimo"
+    index = ctx.state.index
+    stone = False
+    if not journal:
+        if index is not None:
+            stone = any(
+                id(node) not in index.default_note_statues
+                for node in index.objects_by_name.get("Stone Junimo", ())
+            )
+        else:
+            # Compatibility for API consumers constructing snapshots themselves.
+            default_statues = {
+                id(node)
+                for location in ctx.locations()
+                if value(location, "name") == "Town"
+                for entry in location.findall(".//item")
+                if (node := entry.find("value/Object")) is not None
                 and value(entry, "key/Vector2/X") == "57"
                 and value(entry, "key/Vector2/Y") == "16"
-            ):
-                default_statues.add(id(node))
-    stone = any(
-        node.tag in ("Item", "Object")
-        and value(node, "name") == "Stone Junimo"
-        and id(node) not in default_statues
-        for node in ctx.root.iter()
-    )
+            }
+            stone = any(
+                node.tag in ("Item", "Object")
+                and value(node, "name") == "Stone Junimo"
+                and id(node) not in default_statues
+                for node in ctx.root.iter()
+            )
     for player in ctx.players:
         key, node = ctx.player_id(player), player.snapshot
         seen = {int(number(raw)) for raw in values(node, "secretNotesSeen/int")}
@@ -135,13 +148,14 @@ def notes(ctx, journal=False):
         if journal:
             note_count = 11
             ids = set(range(1001, 1012))
-            rewards = {
+            reward_flags = {
                 1004: "Island_W_BuriedTreasure",
                 1006: "Island_W_BuriedTreasure2",
                 1010: "Island_N_BuriedTreasure",
                 1009: None,
             }
-            found = {num for num, flag in rewards.items() if flag in flags}
+            rewards = set(reward_flags)
+            found = {num for num, flag in reward_flags.items() if flag in flags}
             if "Mermaid" in values(ctx.root, "collectedNutTracker/string"):
                 found.add(1009)
             mod_count = sum(num >= 1012 for num in seen)
@@ -195,7 +209,7 @@ def notes(ctx, journal=False):
                 ProgressItem(
                     str(num), f"Secret Note #{num} reward", 0, 1, 1, "note_reward"
                 )
-                for num in sorted(rewards - found)
+                for num in sorted(set(rewards) - found)
             )
             detail = facts(
                 seen_shadow_guy="520702" in ctx.events[key],
@@ -204,7 +218,7 @@ def notes(ctx, journal=False):
                 else value(node, "hasMagnifyingGlass") == "true",
                 mod_notes=mod_count,
             )
-        metrics = (
+        metrics: tuple[ProgressMetric, ...] = (
             metric(
                 "notes_read",
                 "Read all journal scraps" if journal else "Read all secret notes",
@@ -273,7 +287,6 @@ def walnuts(ctx):
         for key, entry in catalog.items()
         if found.get(key, 0) < entry["num"]
     )
-    ctx.walnut_progress = (game_count, total)
     return ProgressResult(
         "walnuts",
         "Golden Walnuts",
@@ -297,6 +310,7 @@ def walnuts(ctx):
         )
         if sum(found.values()) != game_count
         else (),
+        contributions=(CompletionContribution("walnuts", None, game_count, total),),
     )
 
 
@@ -339,14 +353,6 @@ def island_upgrades(ctx):
 
 
 def bundles(ctx):
-    cc_mail = {
-        "ccBoilerRoom": 3,
-        "ccCraftsRoom": 1,
-        "ccPantry": 0,
-        "ccFishTank": 2,
-        "ccVault": 4,
-        "ccBulletin": 5,
-    }
     joja_mail = {
         "jojaBoilerRoom": 3,
         "jojaCraftsRoom": 1,
@@ -364,7 +370,7 @@ def bundles(ctx):
         "Abandoned Joja Mart": 6,
     }
     room_names = {index: name for name, index in room_ids.items()}
-    completed = set()
+    completed: set[int] = set()
     entries = {}
     for location in ctx.locations("CommunityCenter"):
         completed.update(

@@ -1,13 +1,15 @@
 import json
-from pathlib import Path
 import struct
+from pathlib import Path
+
 import pytest
+
 from stardew.infrastructure.xnb.reader import (
     Reader,
-    read_xnb,
-    unpack_xnb,
-    type_name,
     float_json,
+    read_xnb,
+    type_name,
+    unpack_xnb,
 )
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
@@ -20,7 +22,7 @@ def assert_ordered_equal(a, b):
         for k in a:
             assert_ordered_equal(a[k], b[k])
     elif isinstance(a, list):
-        for x, y in zip(a, b):
+        for x, y in zip(a, b, strict=False):
             assert_ordered_equal(x, y)
 
 
@@ -73,3 +75,30 @@ def test_reject_different_game_schema_version():
     data = (FIXTURES / "objects-synthetic.xnb").read_bytes()
     with pytest.raises(ValueError, match="schema version"):
         Reader(unpack_xnb(data.replace(b"1.6.15.24356", b"1.6.16.24356"))).read()
+
+
+def test_prediction_table_arrays_preserve_nulls_and_order():
+    from stardew.infrastructure.xnb.reader import reader_type
+
+    name = reader_type(
+        "Microsoft.Xna.Framework.Content.ArrayReader`1[[System.String, mscorlib]]"
+    )
+    assert name == "System.String[]"
+    reader = Reader(struct.pack("<i", 3) + b"\x01\x05first\x00\x01\x04last")
+    reader.readers = ["System.String"]
+    assert reader.raw(name) == ["first", None, "last"]
+    with pytest.raises(ValueError, match="count"):
+        Reader(struct.pack("<i", -1)).raw(name)
+
+
+@pytest.mark.parametrize(
+    "name,owner_type", [("Any", 1), ("AnyOrNone", 2), ("None", 3), ("Clint", 0)]
+)
+def test_shop_owner_calculated_fields(name, owner_type):
+    # Explicit ContentSerializer field order from GameData.ShopOwnerData.
+    payload = b"\x00\x01" + bytes([len(name)]) + name.encode() + b"\x00" * 5
+    reader = Reader(payload)
+    reader.readers = ["System.String"]
+    result = reader.raw("StardewValley.GameData.Shops.ShopOwnerData")
+    assert (result["Id"], result["Name"], result["Type"]) == (name, name, owner_type)
+    assert reader.pos == len(payload)

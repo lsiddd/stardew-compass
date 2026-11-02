@@ -1,16 +1,19 @@
-import io
-import contextlib
 import json
 import os
+import zlib
 from pathlib import Path
 from unittest.mock import patch
-import zlib
 
 import pytest
+
 from stardew.api import load_save
-from stardew.infrastructure.saves import SaveError, atomic_write, check_output_path
-from stardew.infrastructure.saves import loader
 from stardew.cli import main
+from stardew.infrastructure.saves import (
+    SaveError,
+    atomic_write,
+    check_output_path,
+    loader,
+)
 
 MINIMAL = b"<SaveGame><player><name>Ana</name></player><uniqueIDForThisGame>42</uniqueIDForThisGame></SaveGame>"
 
@@ -170,3 +173,31 @@ def test_duplicate_animal_serializations_and_invalid_statistic(tmp_path):
     path.write_bytes(MINIMAL.replace(b"</player>", stats.encode() + b"</player>"))
     with pytest.raises(SaveError, match="statistic"):
         load_save(path)
+
+
+@pytest.mark.parametrize("luck", ["NaN", "inf", "-inf", "1e999"])
+def test_nonfinite_luck_is_rejected_during_load(tmp_path, luck):
+    path = tmp_path / "save"
+    path.write_bytes(
+        MINIMAL.replace(
+            b"</SaveGame>", f"<dailyLuck>{luck}</dailyLuck></SaveGame>".encode()
+        )
+    )
+    with pytest.raises(SaveError, match="dailyLuck"):
+        load_save(path)
+
+
+def test_late_stream_failure_does_not_publish_earlier_outputs(tmp_path):
+    from stardew.infrastructure.files import atomic_write_stream
+
+    path = tmp_path / "report"
+    path.write_bytes(b"previous")
+
+    def payloads():
+        yield path, b"replacement"
+        raise ValueError("second image failed")
+
+    with pytest.raises(ValueError, match="second image"):
+        atomic_write_stream(payloads())
+    assert path.read_bytes() == b"previous"
+    assert list(tmp_path.iterdir()) == [path]

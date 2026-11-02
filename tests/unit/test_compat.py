@@ -1,8 +1,10 @@
 import gzip
 import json
 from pathlib import Path
+
 import pytest
-from stardew.domain.numeric import Random, xxhash32, div, rem, i32, f32
+
+from stardew.domain.numeric import Random, div, f32, i32, rem, xxhash32
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 
@@ -54,59 +56,29 @@ def test_integer_and_single_semantics():
 
 
 @pytest.mark.parametrize(
-    "game_id,a,b,days,legacy,expected",
-    [
-        (
-            -9223372036854775808,
-            2147483647,
-            -2147483648,
-            2147483647,
-            False,
-            [100361328, 291571099, 1482220885, 1818653750],
-        ),
-        (
-            -9223372036854775808,
-            2147483647,
-            -2147483648,
-            2147483647,
-            True,
-            [1655911537, 867932563, 356479430, 2115372437],
-        ),
-        (
-            9223372036854775807,
-            2147483647,
-            -2147483647,
-            1,
-            False,
-            [658063156, 926577337, 2136960259, 1997153972],
-        ),
-        (
-            9223372036854775807,
-            2147483647,
-            -2147483647,
-            1,
-            True,
-            [534011718, 237820880, 1002897798, 1657007234],
-        ),
-        (-7, 0, 0, 1, False, [594704787, 350520523, 1772110364, 28116188]),
-        (-7, 0, 0, 1, True, [1655911537, 867932563, 356479430, 2115372437]),
-    ],
+    "case",
+    json.loads((FIXTURES / "game-seed-boundaries.json").read_text())["cases"],
+    ids=lambda case: f"{case['game_id']}_{case['legacy']}",
 )
-def test_map_seed_large_ids_and_extra_part_boundary(
-    game_id, a, b, days, legacy, expected
-):
+def test_game_dll_seed_boundaries(case):
+    """Oracle is the installed Utility.CreateRandom, not a second predictor."""
     from types import SimpleNamespace
+
     from stardew.domain.numeric import for_day
 
-    state = SimpleNamespace(game_id=game_id, days_played=days, use_legacy_random=legacy)
-    random = for_day(state, a, b)
-    assert [random.next() for _ in range(4)] == expected
+    state = SimpleNamespace(
+        game_id=case["game_id"],
+        days_played=case["days"],
+        use_legacy_random=case["legacy"],
+    )
+    random = for_day(state, case["a"], case["b"])
+    assert [random.next() for _ in range(4)] == case["draws"]
 
 
-def test_report_fractional_seed_coercion_and_negative_floor():
-    from stardew.domain.numeric import int32, random_seed, SystemRandom
+def test_game_fractional_seed_coercion_truncates_toward_zero():
+    from stardew.domain.numeric import SystemRandom, int32, random_seed
 
     assert int32(-3.9) == -3
     assert int32(10**1000 + 7) == 7
-    assert random_seed(-3.5, 1, legacy=True) == -3
+    assert random_seed(-3.5, 1, legacy=True) == -2
     assert SystemRandom(-3.5).next() == SystemRandom(-3).next()

@@ -12,6 +12,8 @@ def item_text(item, data):
         details.append(f"ID: {item.item_id}")
     if item.is_recipe:
         details.append("recipe")
+    if item.enchantments:
+        details.append("enchantments: " + ", ".join(sorted(item.enchantments)))
     return f"{label} x{item.quantity if item.quantity is not None else 1} ({'; '.join(details)})"
 
 

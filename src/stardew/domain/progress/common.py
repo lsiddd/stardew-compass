@@ -1,25 +1,21 @@
 """Save snapshot access shared by native progress rules."""
 
 from __future__ import annotations
-import re
+
+from typing import Any
+
+from stardew.domain.values import GameVersion, exact_number
+
 from .catalogs import CATALOG_ADDITIONS
 from .models import PlayerProgress
 
 
 def version(value):
-    return tuple(
-        int(x) for x in (re.findall(r"\d+", value or "1.2")[:3] + ["0"] * 3)[:3]
-    )
+    return GameVersion.parse(value or "1.2").triple
 
 
 def number(value, default=0):
-    if value is None or value == "":
-        return default
-    try:
-        parsed = float(value)
-        return int(parsed) if parsed.is_integer() else parsed
-    except (TypeError, ValueError):
-        return default
+    return exact_number(value, default)
 
 
 def value(node, path, default=None):
@@ -38,7 +34,7 @@ def values(node, path):
 
 
 def dictionary(node, path):
-    result = {}
+    result: dict[str, str] = {}
     if node is None:
         return result
     for item in node.findall(path + "/item"):
@@ -68,12 +64,16 @@ class Context:
         self.state = state
         self.root = state.snapshot
         self.players = state.players
+        self._locations = tuple(
+            location.snapshot
+            for location in state.world.locations
+            if location.snapshot.tag == "GameLocation"
+        )
         self.version = version(state.rules_version)
         self.data = data
         self.mail = {}
         self.events = {}
         self.stats = {}
-        self.perfection = {}
         for index, player in enumerate(self.players):
             key = self.player_id(player, index)
             self.mail[key] = set(player.mail)
@@ -90,7 +90,6 @@ class Context:
                         except ValueError:
                             continue
             self.stats[key] = stats
-            self.perfection[key] = {}
         self.host_id = self.player_id(self.players[0])
         self.partners = {}
         for item in self.root.findall("farmerFriendships/item"):
@@ -118,7 +117,7 @@ class Context:
 
     def updated_catalog(self, name, rule):
         catalog = self.catalog(name)
-        result = (
+        result: Any = (
             {str(k): v for k, v in catalog.items()}
             if hasattr(catalog, "items")
             else list(catalog)
@@ -143,15 +142,18 @@ class Context:
     def locations(self, kind=None):
         return tuple(
             n
-            for n in self.root.findall("locations/GameLocation")
+            for n in self._locations
             if kind is None or object_type(n) == kind or value(n, "name") == kind
         )
 
-    def player_result(self, player, metrics=(), items=(), detail=()):
+    def player_result(
+        self, player, metrics=(), items=(), detail=(), *, contributions=()
+    ):
         return PlayerProgress(
             self.player_id(player),
             player.name,
             tuple(metrics),
             tuple(items),
             tuple(detail),
+            tuple(contributions),
         )

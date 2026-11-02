@@ -5,12 +5,12 @@ Animations use their first frame; dynamic in-game map patches are not applied.
 """
 
 from dataclasses import dataclass
-from pathlib import Path
-from .reader import Reader, unpack_xnb
+
+from .reader import Reader, read_xnb_bytes, unpack_xnb
 
 
 def asset_reader(path, expected):
-    reader = Reader(unpack_xnb(Path(path).read_bytes()))
+    reader = Reader(unpack_xnb(read_xnb_bytes(path)))
     if reader.seven() != 1:
         raise ValueError(f"Unsupported graphics reader table: {path}")
     name, version = reader.string(), reader.unpack("i")

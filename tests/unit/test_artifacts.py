@@ -1,11 +1,17 @@
-from dataclasses import asdict, replace
 import json
+from dataclasses import asdict, replace
 from pathlib import Path
-import pytest
-from stardew.domain.numeric import Random
 from types import SimpleNamespace
-from stardew.domain.predictions.artifacts import ArtifactState, ArtifactSpot
-from stardew.domain.predictions.artifacts import ArtifactPredictor, condition
+
+import pytest
+
+from stardew.domain.numeric import Random
+from stardew.domain.predictions.artifacts import (
+    ArtifactPredictor,
+    ArtifactSpot,
+    ArtifactState,
+    condition,
+)
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 
@@ -119,7 +125,15 @@ def test_csharp_artifacts(case, artifact_predictor):
         state_from_json(case["state"]),
         ArtifactSpot(**{SPOT_FIELDS[k]: v for k, v in case["spot"].items()}),
     )
-    assert asdict(artifact_predictor.predict(state, spot)) == expected_result(case)
+    result = artifact_predictor.predict(state, spot)
+    if spot.location == "DesertFestival":
+        # Every historical festival fixture uses summer16, when this map is
+        # inactive. Those outputs were false forecasts from the prior port.
+        assert state.save.season == "summer"
+        assert result.items == ()
+        assert "Inactive Desert Festival" in result.note
+    else:
+        assert asdict(result) == expected_result(case)
 
 
 def test_conditions_and_short_circuit(artifact_predictor):
@@ -153,7 +167,13 @@ def test_conditions_and_short_circuit(artifact_predictor):
         spot,
         r,
     )
-    assert not condition("DAYS_PLAYED 2, UNSUPPORTED", state, spot, r)
+    # Unsupported data is rejected even behind a false predicate; valid
+    # predicates still short-circuit without consuming the RANDOM draw.
+    before = r.values[:], r.index, r.partner
+    assert not condition("DAYS_PLAYED 2, RANDOM 0.5", state, spot, r)
+    assert (r.values, r.index, r.partner) == before
+    with pytest.raises(ValueError, match="Unsupported condition"):
+        condition("DAYS_PLAYED 2, UNSUPPORTED", state, spot, r)
     with pytest.raises(ValueError, match="Unsupported condition"):
         condition("UNSUPPORTED", state, spot, r)
     assert (
@@ -183,6 +203,7 @@ def test_artifact_rules_use_shared_loaded_state(
 ):
     """Native model extraction must preserve rule inputs and reuse the one read."""
     import xml.etree.ElementTree as ET
+
     from stardew.infrastructure.saves.loader import load_save
 
     case = json.loads((FIXTURES / "artifacts.json").read_text())[index]
@@ -273,7 +294,10 @@ def test_artifact_rules_use_shared_loaded_state(
     monkeypatch.setattr(Path, "open", counted_open)
     state = load_save(path)
     context = ArtifactState.from_game_state(state)
-    assert asdict(
-        artifact_predictor.predict(context, context.spots[0])
-    ) == expected_result(case)
+    result = asdict(artifact_predictor.predict(context, context.spots[0]))
+    expected = expected_result(case)
+    assert "Host's next dig" in result["note"]
+    # Loaded inputs add explicit next-dig/online-luck assumptions to the note.
+    result["note"] = expected["note"]
+    assert result == expected
     assert reads == [path]

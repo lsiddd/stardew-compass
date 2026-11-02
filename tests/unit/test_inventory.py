@@ -3,16 +3,16 @@
 import contextlib
 import io
 import json
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 
 from lxml import etree
 
-from stardew.cli import main
-from stardew.infrastructure.saves.loader import snapshot, from_snapshot
-from stardew.infrastructure.game_data import load_game_data
 from stardew.application.extras import analyze_extras
+from stardew.cli import main
+from stardew.infrastructure.game_data import load_game_data
+from stardew.infrastructure.saves.loader import from_snapshot, snapshot
 from stardew.presentation.text.extras import render_extras
 
 

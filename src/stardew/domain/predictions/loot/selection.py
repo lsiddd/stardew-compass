@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from typing import Any
+
 from ..report_support import set_slot
 
 

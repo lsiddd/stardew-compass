@@ -1,0 +1,82 @@
+{
+  "source": "Local Stardew Valley 1.6.15.24356 DLL: unmodified Utility.CreateRandom and FishingRod.distanceToLand. End predicate follows GameLocation.performTenMinuteUpdate; map properties read from installed xTile maps. No game/save loaded.",
+  "sha256": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "solo_charm_luck": 0.01700000037252903,
+  "geometry": [
+    {
+      "location": "IslandNorth",
+      "x": 0,
+      "y": 80,
+      "depth": 1,
+      "no_fishing": false
+    },
+    {
+      "location": "IslandNorth",
+      "x": 1,
+      "y": 78,
+      "depth": 0,
+      "no_fishing": false
+    },
+    {
+      "location": "Mountain",
+      "x": 86,
+      "y": 0,
+      "depth": 0,
+      "no_fishing": false
+    },
+    {
+      "location": "Mountain",
+      "x": 54,
+      "y": 20,
+      "depth": 1,
+      "no_fishing": false
+    },
+    {
+      "location": "Mountain",
+      "x": 47,
+      "y": 3,
+      "depth": 0,
+      "no_fishing": true
+    }
+  ],
+  "mountain_frenzy": {
+    "game_id": 390938626,
+    "days": 18,
+    "start": 1230,
+    "x": 83,
+    "y": 40,
+    "ordinary_end": 1420,
+    "frenzy_end": 1450
+  },
+  "beach_chance": {
+    "game_id": 390938626,
+    "days": 304,
+    "time": 640,
+    "spawn": 0.1812319355929419,
+    "x": 21,
+    "y": 38,
+    "chance": 0.008064532656252631
+  },
+  "festival": {
+    "game_id": 390938626,
+    "days": 127,
+    "x": 38,
+    "y": 57,
+    "calico_eggs": 3
+  },
+  "map_sha256": {
+    "Stardew Valley.dll": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+    "xTile.dll": "327c21fc911f795a28cef18aec0d5d6dfa0d627f1e3250000323188fd4752c3f",
+    "Content/Maps/Forest.xnb": "3fe64eef5121248fb4ac0c1a3bea159e9f51d97c81faebd96c5c27a5a46cde31",
+    "Content/Maps/Desert.xnb": "190b331e4c70887fee2c91856b2173f7c643b6d37dcb56679f2a6eb89ad9c998",
+    "Content/Maps/Island_N.xnb": "60b0cb04d78549b8a585a8869b4956f9124d4a0493e82b581ef68211fd6b2bf3",
+    "Content/Maps/Beach.xnb": "02ef6a79506fd769ab7f0567cf67c16792a1d13b5389826f08831faf5200026c",
+    "Content/Maps/Woods.xnb": "61a9f3399d122ac74410b26b6786e33cdce8649dc58e3ebf60d5e1f4d6a0e906",
+    "Content/Maps/Farm_Fishing.xnb": "83522bc4e0b1af4ce315a4541c158957beb8a307c28ad5e429a43f2d97a5e09e",
+    "Content/Maps/Island_W.xnb": "bf88c167f562e8de90db955c9d652d1a150989576fbd865fa112f96ba852d271",
+    "Content/Maps/Mountain.xnb": "c32e9acc016fcce8a94764662e2b947f727293872f64f408ca1e88382bc27ed3",
+    "Content/Maps/Farm.xnb": "1f383106dbef261eabde1fdd7ec97f56a7d0e1d59aad4d67e3c05ee5700e561c",
+    "Content/Maps/Town.xnb": "4860eb9c47a3b888fc1c65cdb7045667db98022e8a33bb35061f29647b8bdbbd",
+    "Content/Maps/Island_SE.xnb": "f5bd47991ba462642c182d2690b7f38cda7e9cc8ff007967e1336108f0587607"
+  }
+}

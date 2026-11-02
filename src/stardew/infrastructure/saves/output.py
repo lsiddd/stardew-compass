@@ -1,9 +1,11 @@
 """Atomic output and input-save protection shared by every text/JSON command."""
 
-from pathlib import Path
 import os
-from .loader import SaveError
+from pathlib import Path
+
 from stardew.infrastructure.files import atomic_write as atomic_write_bytes
+
+from .loader import SaveError
 
 
 def check_output_path(output, save_path):

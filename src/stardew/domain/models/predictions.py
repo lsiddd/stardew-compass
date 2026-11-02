@@ -11,6 +11,7 @@ class BubbleEvent:
     start: int
     end: int | None
     kind: str
+    scenario: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

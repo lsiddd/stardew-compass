@@ -1,14 +1,14 @@
 """Save annotated PNG maps using local game graphics and optional Pillow."""
 
+import re
 from collections import OrderedDict
 from io import BytesIO
-from ...resources import data_path
 from pathlib import Path
-import re
 
-from ...infrastructure.files import atomic_write_many
+from ...infrastructure.files import atomic_write_stream, validate_destination
 from ...infrastructure.saves.output import check_output_path
 from ...infrastructure.xnb.graphics import read_texture, read_visual_map
+from ...resources import data_path
 
 MAP_NAMES = {
     "IslandNorth": "Island_N",
@@ -138,6 +138,7 @@ def rows_for_results(results, mode):
             entries.append(
                 f"{clock(result.start)} – {end}"
                 + (" / Frenzy" if result.kind == "Frenzy" else "")
+                + (f" [if {result.scenario}]" if result.scenario else "")
             )
         else:
             entries.append(
@@ -237,7 +238,7 @@ def draw_figure(background, pixels, rows, save, location, mode):
     ]
     if mode == "bubbles":
         notes.append(
-            ">25:50 = bubbles still active at the last simulated time; end times are exclusive."
+            ">25:50 = still active; ends exclusive. Labels [if ...] describe alternative timelines, not simultaneous events."
         )
     else:
         notes.append(
@@ -264,25 +265,30 @@ def save_plots(save, results, output_directory, game_directory, mode):
     locations = OrderedDict()
     for result in results:
         locations.setdefault(result.location, []).append(result)
-    prepared = []
-    for location, local_results in locations.items():
-        background, pixels, width, height = renderer.render(location)
-        rows = rows_for_results(local_results, mode)
-        if any(not (0 <= x < width and 0 <= y < height) for x, y, _ in rows):
-            raise ValueError(
-                f"Prediction coordinates outside installed map: {location}"
-            )
-        image = draw_figure(background, pixels, rows, save, location, mode)
+    paths = {}
+    for location in locations:
         safe = re.sub(r"[^A-Za-z0-9_-]", "_", location)
         path = output / f"{mode}_{safe}_day-{save.days_played}.png"
         if source is not None:
             check_output_path(path, source)
-        prepared.append((path, image))
-    # All maps/textures are validated before creating the output directory.
-    encoded = {}
-    for path, image in prepared:
-        buffer = BytesIO()
-        image.save(buffer, format="PNG")
-        encoded[path] = buffer.getvalue()
-    atomic_write_many(encoded)
-    return [path for path, _ in prepared]
+        validate_destination(path)
+        paths[location] = path
+
+    def encoded_maps():
+        for location, local_results in locations.items():
+            background, pixels, width, height = renderer.render(location)
+            rows = rows_for_results(local_results, mode)
+            if any(not (0 <= x < width and 0 <= y < height) for x, y, _ in rows):
+                raise ValueError(
+                    f"Prediction coordinates outside installed map: {location}"
+                )
+            image = draw_figure(background, pixels, rows, save, location, mode)
+            try:
+                with BytesIO() as buffer:
+                    image.save(buffer, format="PNG")
+                    yield paths[location], buffer.getvalue()
+            finally:
+                image.close()
+
+    atomic_write_stream(encoded_maps())
+    return list(paths.values())

@@ -4,14 +4,15 @@ from collections.abc import Callable, Mapping
 from typing import Any, TypeVar
 
 from stardew.domain.errors import FeatureUnavailable
-from stardew.domain.models.state import GameState
 from stardew.domain.models.game_data import GameData
-from stardew.domain.models.results import AnalysisOptions, AnalysisResult, Diagnostic
 from stardew.domain.models.predictions import ArtifactResult, BubbleEvent
-from stardew.domain.progress.models import ProgressResult
+from stardew.domain.models.results import AnalysisOptions, AnalysisResult, Diagnostic
+from stardew.domain.models.state import GameState
 from stardew.domain.predictions.report_models import PredictionSection
-from .extras import analyze_extras
+from stardew.domain.progress.models import ProgressResult
 
+from .extras import analyze_extras
+from .provenance import analysis_provenance
 
 Result = TypeVar("Result")
 
@@ -92,5 +93,5 @@ def analyze(
         tuple(artifacts),
         analyze_extras(state, data) if options.extras else None,
         tuple(diagnostics),
-        data.provenance,
+        analysis_provenance(state, data, options, predictions),
     )

@@ -1,8 +1,9 @@
 import pytest
+
 from stardew.infrastructure.game_data.maps import Map
 
 
-def test_geometry_preserves_first_layer_and_strict_firstgid():
+def test_geometry_preserves_first_layer_and_inclusive_firstgid():
     layer = {"name": "Back", "width": 2, "data": [1, 2]}
     map = Map(
         {
@@ -20,7 +21,8 @@ def test_geometry_preserves_first_layer_and_strict_firstgid():
             ],
         }
     )
-    assert map.tile(1) is None
+    assert map.tile(1) is not None
+    assert map.property(0, 0, "Water")
     assert map.property(1, 0, "Water")
     assert map.index(0, 2, "Back") == 0
     with pytest.raises(IndexError):
@@ -31,6 +33,7 @@ def test_geometry_preserves_first_layer_and_strict_firstgid():
 def test_read_map_resource_formats(tmp_path, suffix):
     import json
     import xml.etree.ElementTree as ET
+
     from stardew.infrastructure.game_data.maps import read_maps
 
     data = {"width": 2, "height": 1, "layers": [], "tilesets": []}

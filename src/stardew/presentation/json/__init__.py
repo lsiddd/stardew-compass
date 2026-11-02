@@ -1,20 +1,22 @@
 """Schema v2 serializes facts, without XML, HTML or text bodies."""
 
+import json
 from collections.abc import Mapping
-from dataclasses import fields, is_dataclass
+from dataclasses import is_dataclass
 from pathlib import Path
 from typing import Any
-import json
+
 from stardew.domain.models.results import AnalysisResult
+
+from .wire import WIRE_FIELDS
 
 
 def to_data(value: Any) -> Any:
     if is_dataclass(value):
-        return {
-            field.name: to_data(getattr(value, field.name))
-            for field in fields(value)
-            if field.name != "snapshot"
-        }
+        names = WIRE_FIELDS.get(type(value))
+        if names is None:
+            raise TypeError(f"No public JSON contract for {type(value).__name__}")
+        return {name: to_data(getattr(value, name)) for name in names}
     if isinstance(value, Mapping):
         return {str(key): to_data(child) for key, child in value.items()}
     if isinstance(value, (tuple, list)):

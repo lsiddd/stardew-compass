@@ -1,15 +1,14 @@
-import json
-from pathlib import Path
+from types import SimpleNamespace
+
 import pytest
 from PIL import Image
-from types import SimpleNamespace
-from stardew.domain.predictions.bubbles import BubbleEvent
+
 from stardew.domain.predictions.artifacts import ArtifactResult, DigItem
+from stardew.domain.predictions.bubbles import BubbleEvent
 from stardew.presentation.maps import (
     MapRenderer,
     rows_for_results,
     save_plots,
-    draw_figure,
 )
 
 
@@ -142,6 +141,7 @@ def test_game_state_input_save_is_protected_from_png_outputs(
     tmp_path, monkeypatch, connection
 ):
     import os
+
     from stardew.infrastructure.saves import SaveError
 
     metadata = SimpleNamespace(

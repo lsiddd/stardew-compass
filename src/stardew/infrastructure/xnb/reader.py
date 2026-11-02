@@ -1,18 +1,34 @@
 """XNB v5 readers with explicit Stardew Valley 1.6.15 schemas; no assemblies."""
 
 import json
-from importlib.resources import files
 import math
 import re
-from pathlib import Path
 import struct
+from importlib.resources import files
+from pathlib import Path
+
 from ...domain.numeric import f32, i32
+from ..streams import read_bounded
 from .lzx import decompress_frames
+
+MAX_XNB_BYTES = 128 * 1024 * 1024
+MAX_DECOMPRESSED_BYTES = 256 * 1024 * 1024
 
 SCHEMAS = json.loads(
     files(__package__).joinpath("schemas.json").read_text(encoding="utf-8")
 )
 ENUMS = {
+    "StardewValley.GameData.Shops.StackSizeVisibility",
+    "StardewValley.GameData.Shops.LimitedStockMode",
+    "StardewValley.GameData.Characters.NpcLanguage",
+    "StardewValley.Gender",
+    "StardewValley.GameData.Characters.NpcAge",
+    "StardewValley.GameData.Characters.NpcManner",
+    "StardewValley.GameData.Characters.NpcSocialAnxiety",
+    "StardewValley.GameData.Characters.NpcOptimism",
+    "StardewValley.GameData.Characters.CalendarBehavior",
+    "StardewValley.GameData.Characters.SocialTabBehavior",
+    "StardewValley.GameData.Characters.EndSlideShowBehavior",
     "StardewValley.Season",
     "StardewValley.GameData.MusicContext",
     "StardewValley.GameData.QuantityModifier+ModificationType",
@@ -89,6 +105,8 @@ def reader_type(name):
     }
     if base in kinds and len(args) == kinds[base][1]:
         return kinds[base][0] + "<" + "|".join(args) + ">"
+    if base == "ArrayReader`1" and len(args) == 1:
+        return args[0] + "[]"
     if base == "ReflectiveReader`1" and len(args) == 1 and args[0] in SCHEMAS:
         return args[0]
     if base == "EnumReader`1" and len(args) == 1 and args[0] in ENUMS:
@@ -163,6 +181,8 @@ class Reader:
         )
 
     def raw(self, name):
+        if name.endswith("[]"):
+            return [self.value(name[:-2]) for _ in range(self.count())]
         if name == "System.String":
             return self.string()
         if name == "System.Int32" or name in ENUMS:
@@ -215,6 +235,11 @@ class Reader:
             own = {field: self.value(kind) for field, kind in schema["members"]}
             # JSON serializes derived properties before base properties.
             result = own | inherited
+            if name == "StardewValley.GameData.Shops.ShopOwnerData":
+                result["Id"] = result["Id"] or result["Name"]
+                result["Type"] = {"AnyOrNone": 2, "Any": 1, "None": 3}.get(
+                    result["Name"], 0
+                )
             if (
                 name == "StardewValley.GameData.GenericSpawnItemData"
                 and result["Id"] is None
@@ -253,6 +278,8 @@ class Reader:
 
 
 def unpack_xnb(data):
+    if len(data) > MAX_XNB_BYTES:
+        raise ValueError("XNB exceeds the 128 MiB input limit.")
     r = Reader(data)
     if r.take(3) != b"XNB":
         raise ValueError("Invalid XNB signature.")
@@ -267,9 +294,19 @@ def unpack_xnb(data):
         raise ValueError("XNB file length mismatch.")
     if flags & 0x80:
         size = r.unpack("I")
+        if size > MAX_DECOMPRESSED_BYTES:
+            raise ValueError("XNB exceeds the 256 MiB decompression limit.")
         return decompress_frames(data[r.pos :], size)
     return data[r.pos :]
 
 
 def read_xnb(path):
-    return Reader(unpack_xnb(Path(path).read_bytes())).read()
+    return Reader(unpack_xnb(read_xnb_bytes(path))).read()
+
+
+def read_xnb_bytes(path):
+    with Path(path).open("rb") as stream:
+        data = read_bounded(stream, MAX_XNB_BYTES)
+    if len(data) > MAX_XNB_BYTES:
+        raise ValueError(f"XNB exceeds the 128 MiB input limit: {path}")
+    return data

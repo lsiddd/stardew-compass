@@ -1,7 +1,18 @@
 """Player skills, combat, family, relationships, powers and milestones."""
 
-from .common import counts, dictionary, integer, number, object_type, value, values
-from .models import ProgressItem, ProgressResult, facts, metric
+from stardew.domain.models.state import PlayerState
+
+from .common import (
+    Context,
+    counts,
+    dictionary,
+    integer,
+    number,
+    object_type,
+    value,
+    values,
+)
+from .models import CompletionContribution, ProgressItem, ProgressResult, facts, metric
 
 SKILLS = ("Farming", "Fishing", "Foraging", "Mining", "Combat")
 LEVEL_XP = (100, 380, 770, 1300, 2150, 3300, 4800, 6900, 10000, 15000)
@@ -12,12 +23,12 @@ def skills(ctx, mastery=False):
     players = []
     for player in ctx.players:
         key, node = ctx.player_id(player), player.snapshot
-        xp = [number(x) for x in values(node, "experiencePoints/int")]
+        xp = list(player.experience)
         xp += [0] * (5 - len(xp))
         maxed = sum(x >= 15000 for x in xp[:5])
-        level = sum(
-            integer(node, skill.lower() + "Level") for skill in SKILLS
-        ) + integer(node, "luckLevel")
+        level = sum(player.skills.get(skill.lower()) or 0 for skill in SKILLS) + (
+            player.skills.get("luck") or 0
+        )
         level //= 2
         metrics = [
             metric("maxed_skills", "Master of the Five Ways", maxed, 5),
@@ -42,7 +53,7 @@ def skills(ctx, mastery=False):
             )
             for i, skill in enumerate(SKILLS)
         ]
-        ctx.perfection[key]["skills"] = (level, 25)
+        contribution = CompletionContribution("skills", key, level, 25)
         titles = (
             "Newcomer",
             "Greenhorn",
@@ -102,7 +113,11 @@ def skills(ctx, mastery=False):
                     None,
                 ),
             )
-        players.append(ctx.player_result(player, metrics, items, detail))
+        players.append(
+            ctx.player_result(
+                player, metrics, items, detail, contributions=(contribution,)
+            )
+        )
     return ProgressResult(
         "skill_mastery" if mastery else "skills",
         "Skill Mastery" if mastery else "Skills",
@@ -247,13 +262,16 @@ def monsters(ctx):
                     1000,
                 )
             )
-        ctx.perfection[key]["monsters"] = (int(done >= len(goals)), 1)
+        contribution = CompletionContribution(
+            "monsters", key, int(done >= len(goals)), 1
+        )
         players.append(
             ctx.player_result(
                 player,
                 metrics,
                 items,
                 facts(deepest_mine_level=depth, total_monsters_killed=total),
+                contributions=(contribution,),
             )
         )
     return ProgressResult("monsters", "Monster Hunting", players=tuple(players))
@@ -278,9 +296,8 @@ def stardrops(ctx):
             for flag, description in catalog.items()
             if flag not in found
         )
-        ctx.perfection[key]["stardrops"] = (
-            int(override or len(found) >= len(catalog)),
-            1,
+        contribution = CompletionContribution(
+            "stardrops", key, int(override or len(found) >= len(catalog)), 1
         )
         players.append(
             ctx.player_result(
@@ -299,30 +316,19 @@ def stardrops(ctx):
                     max_stamina=integer(player.snapshot, "maxStamina"),
                     stamina_override=override,
                 ),
+                contributions=(contribution,),
             )
         )
     return ProgressResult("stardrops", "Stardrops", players=tuple(players))
 
 
-def friendship_entries(ctx, node):
-    result = {}
-    if ctx.version >= (1, 3, 0):
-        for entry in node.findall("friendshipData/item"):
-            name = value(entry, "key/string", "")
-            status = value(entry, "value/Friendship/Status", "Friendly")
-            if (
-                status == "Married"
-                and value(entry, "value/Friendship/RoommateMarriage") == "true"
-            ):
-                status = "Roommate"
-            result[name] = (integer(entry, "value/Friendship/Points"), status)
-    else:
-        for entry in node.findall("friendships/item"):
-            result[value(entry, "key/string", "")] = (
-                integer(entry, "value/ArrayOfInt/int"),
-                "Friendly",
-            )
-    return result
+def friendship_entries(ctx: Context, player: PlayerState) -> dict[str, tuple[int, str]]:
+    relationships = (
+        player.friendship_facts
+        if ctx.version >= (1, 3, 0)
+        else player.legacy_friendship_facts
+    )
+    return {name: (entry.points, entry.status) for name, entry in relationships.items()}
 
 
 def social(ctx):
@@ -352,7 +358,7 @@ def social(ctx):
     players = []
     for player in ctx.players:
         key, node = ctx.player_id(player), player.snapshot
-        raw = friendship_entries(ctx, node)
+        raw = friendship_entries(ctx, player)
         eligible = {
             name: rel
             for name, rel in raw.items()
@@ -371,7 +377,7 @@ def social(ctx):
         if ctx.version < (1, 3, 0) and integer(ctx.root, "countdownToWedding") > 0:
             spouse = spouse[:-7]
         items = []
-        for name, (datable, child, is_girl) in npcs.items():
+        for name, (datable, child, _is_girl) in npcs.items():
             pts, status = eligible.get(name, (0, "Unmet"))
             if ctx.version < (1, 3, 0) and name in eligible:
                 status = (
@@ -469,7 +475,9 @@ def social(ctx):
             ("popular", "Popular", count5, 20),
             ("great_friends", "Great Friends", max_count, max_total),
         ]
-        ctx.perfection[key]["great_friends"] = (max_count, max_total)
+        contribution = CompletionContribution(
+            "great_friends", key, max_count, max_total
+        )
         players.append(
             ctx.player_result(
                 player,
@@ -484,13 +492,14 @@ def social(ctx):
                         {"195012", "195019"} & ctx.events[key]
                     ),
                 ),
+                contributions=(contribution,),
             )
         )
     return ProgressResult("social", "Social", players=tuple(players))
 
 
 def family(ctx):
-    children = {ctx.host_id: []}
+    children: dict[str, list[str]] = {ctx.host_id: []}
     for location in ctx.locations():
         interiors = [location] + list(location.findall(".//indoors"))
         for house in interiors:
@@ -510,7 +519,7 @@ def family(ctx):
     players = []
     names = {ctx.player_id(player): player.name for player in ctx.players}
     for player in ctx.players:
-        key, node = ctx.player_id(player), player.snapshot
+        key, _node = ctx.player_id(player), player.snapshot
         spouse = player.spouse or names.get(ctx.partners.get(key), "")
         kids = tuple(
             dict.fromkeys(
@@ -611,9 +620,9 @@ def arcade(ctx):
         saved = node.find("JOTPKProgress")
         stage = integer(saved, "whichRound/int") + 1 if saved is not None else None
         wave = integer(saved, "whichWave/int") + 1 if saved is not None else None
-        completed = (
-            (8 if stage == 3 else (4 if stage == 2 else -1) + wave) if stage else 0
-        )
+        completed = 0
+        if stage is not None and wave is not None:
+            completed = 8 if stage == 3 else (4 if stage == 2 else -1) + wave
         players.append(
             ctx.player_result(
                 player,

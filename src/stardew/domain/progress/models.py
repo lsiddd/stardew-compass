@@ -1,7 +1,8 @@
 """Immutable facts produced by progress calculations."""
 
 from __future__ import annotations
-from dataclasses import dataclass
+
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -49,12 +50,23 @@ class ProgressFact:
 
 
 @dataclass(frozen=True, slots=True)
+class CompletionContribution:
+    category: str
+    player_id: str | None
+    count: int | float
+    goal: int | float
+
+
+@dataclass(frozen=True, slots=True)
 class PlayerProgress:
     player_id: str
     name: str
     metrics: tuple[ProgressMetric, ...] = ()
     items: tuple[ProgressItem, ...] = ()
     facts: tuple[ProgressFact, ...] = ()
+    contributions: tuple[CompletionContribution, ...] = field(
+        default=(), repr=False, metadata={"wire": False}
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -67,6 +79,9 @@ class ProgressResult:
     facts: tuple[ProgressFact, ...] = ()
     available: bool = True
     diagnostics: tuple[str, ...] = ()
+    contributions: tuple[CompletionContribution, ...] = field(
+        default=(), repr=False, metadata={"wire": False}
+    )
 
 
 def metric(

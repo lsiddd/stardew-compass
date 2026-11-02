@@ -180,6 +180,13 @@ Inspect the next 20 geodes from the saved counter:
 uv run --locked stardew predict geode "/path/to/Farmer_123" --count 20
 ```
 
+Without range options this also shows the next 20 openings. If the saved counter
+is 467, the report starts at opening **468**, with `openings_ahead: 1`, and ends
+at 487. The sequence number identifies an opening, not an item. The six container
+types shown at the same number are alternatives for that opening. At Clint,
+Mystery Boxes also increment the geode counter; their own loot uses the separate
+Mystery Box counter. Reanalyze the latest save after opening containers in game.
+
 Inspect a specific part of the geode sequence:
 
 ```sh
@@ -199,12 +206,14 @@ The meaning of a range depends on the feature:
 | Prediction type | Meaning of `--start` and `--count` |
 | --- | --- |
 | Calendar predictions, including mines, shops, trains, and Bookseller | First **day played** and number of days. Day 1 is Spring 1, Year 1; day 113 is Spring 1, Year 2. |
-| Geodes, Mystery Boxes, enchantments, prize tickets, and raccoon requests | First **sequence index** and number of entries. Indices start at 1; `--count` alone continues from the saved counter. |
+| Geodes, Mystery Boxes, enchantments, prize tickets, and raccoon requests | First **sequence index** and number of entries. Indices start at 1; without `--start`, all ranges continue from the saved counter. |
 | Winter Star and Desert Festival | First **year** and number of years. |
 
 Range options apply to report predictions. Bubble and artifact predictions use
 the saved day. Feature availability follows the save's version and required
 fields; an isolated prediction returns an error when its requirements are missing.
+Calendar predictions default to the saved day and the following days, without
+past dates. Use an explicit `--start` to inspect an earlier range.
 
 Conditional outcomes appear as explicit alternatives, with the condition that
 selects each one. Session-dependent outcomes retain those alternatives when
@@ -219,7 +228,7 @@ uv run --locked stardew predict bubbles "/path/to/Farmer_123" \
   --location Mountain --location Beach
 ```
 
-Bubble predictions support **Stardew Valley 1.6.9–1.6.x**. Default locations
+Bubble predictions currently support **Stardew Valley 1.6.15**, the inspected version. Default locations
 are Town, Mountain, Forest, Beach, Desert, Woods, IslandNorth, IslandWest,
 and IslandSouthEast. Riverland saves also include `Farm_Fishing`.
 
@@ -256,8 +265,13 @@ bubble and artifact results.
   at 25:50, the last simulated time.
 - Backgrounds show the static game map. Saved buildings, crops, and changes
   made during a play session are outside the rendered background.
-- Location results include island and festival maps independently of access
-  restrictions. Artifact spots are evaluated individually.
+- Bubble/frenzy scenarios are alternative complete timelines. Their `scenario`
+  labels must be kept when grouping events; events from different scenarios
+  must not be combined into a single schedule. Unknown frenzy checks can make
+  a location unavailable when more than 64 timelines would be needed.
+- Artifact spots are evaluated individually as the host's next dig. Multiplayer
+  needs the online-player indices for average luck; unknown membership is reported
+  as unavailable. An inactive Desert Festival map produces no dig reward.
 
 ## Artifact spots and local game data
 
@@ -269,7 +283,12 @@ and tables exported from the local game installation.
 | Saved game version | **1.6.15** |
 | Player inventory | **Exactly one hoe** |
 | Game tables | `Objects.json`, `Locations.json`, and `ObjectNames.json` |
-| Source information | `provenance.json` containing source hashes |
+| Source information | `provenance.json` containing source hashes; new exports also include `manifest.json` with payload hashes |
+
+The exporter also includes `Shops`, `Characters`, `GarbageCans`,
+`LocationContexts`, and `MakeoverOutfits` when present. Outfit selection uses the
+exported ordering and saved equipment. Other audited rules target the inspected
+base-game tables; arbitrary modded game-state queries are not supported.
 
 Export once to a directory outside the game installation:
 
@@ -369,11 +388,13 @@ Text and JSON render the same analysis result. The top-level JSON fields are:
 | `bubbles`, `artifacts` | Location-specific events and predicted drops. |
 | `extras` | Inventories and supplementary saved data, or `null` when skipped. |
 | `diagnostics` | Feature availability messages. |
-| `provenance` | Catalog and map sources, plus hashes for exported game tables. |
+| `provenance` | Sources and table hashes, requested features, rule version, luck assumptions, player selection and prediction coverage. |
 
 Missing saved values remain distinct from `0` and `false`. Prediction records
 retain IDs and numeric values alongside display names, so consumers can work
-directly with facts.
+directly with facts. The packaged [JSON Schema](src/stardew/resources/report-v2.schema.json)
+defines the v2 contract. Internal snapshots, indexes and completion contributions
+are excluded by an explicit serializer field list.
 
 ## Architecture
 
@@ -392,9 +413,10 @@ src/stardew/
 
 The CLI calls the same public API used by Python consumers. Save decoding
 produces one shared snapshot; calculations return structured facts; renderers
-format those facts for their destination. Loot rules are organized by feature,
-with separate modules for geodes, Mystery Boxes, enchantments, prize tickets,
-and raccoons.
+format those facts for their destination. Calendar, event, shop and loot rules
+are organized by feature, with a shared registry for scope and ranges and separate
+builders for public records. Perfection consumes explicit category contributions.
+Use `load_game_data(include_maps=False)` when fishing bubble geometry is unnecessary.
 
 See [architecture](docs/architecture.md) for layer responsibilities,
 [migration](docs/migration.md) for the project's history, and
@@ -405,9 +427,13 @@ See [architecture](docs/architecture.md) for layer responsibilities,
 ### Run the suite and build the package
 
 ```sh
-uv sync --locked --extra test
-uv run --locked --extra test pytest
-uv run --locked --extra test python -m build
+uv sync --locked --extra test --extra dev
+uv run --no-sync ruff check src tests benchmarks scripts
+uv run --no-sync ruff format --check src tests benchmarks scripts
+uv run --no-sync mypy
+uv run --no-sync pytest
+uv run --no-sync python -m build
+uv run --no-sync python scripts/verify_wheel.py
 ```
 
 Tests cover the API and CLI, save decoding, progress and inventories, RNG
@@ -419,7 +445,7 @@ reference fixtures include:
 - **3,059 historical records** for all 22 report prediction features across
   ten scenarios, including older versions, multiplayer, and both RNG modes.
 
-GitHub Actions runs the suite on Python **3.11 and 3.13**, builds the distribution,
+GitHub Actions runs the suite on Python **3.11 and 3.13** on **Linux and Windows**, checks style and types, builds the distribution,
 and tests an installed wheel outside the checkout. Reference inputs are
 synthetic; fixture provenance is documented in
 [tests/fixtures/README.md](tests/fixtures/README.md).
@@ -471,3 +497,14 @@ Catalogs and report rules draw on the MouseyPounds checkup and predictor
 references. Map geometry, bubble rules, and artifact rules preserve the
 project's earlier predictor work. Source identifiers and hashes accompany
 the bundled resources and reference fixtures.
+
+
+## Corrections checked against the installed game
+
+The November 2026 audit replaced historical predictor assumptions with inspected
+1.6.15 game rules and independently captured DLL seed vectors. See
+[the correction notes](docs/game-parity-corrections.md) for scope and limitations.
+Train behavior from the inspected executable is selected by its SHA-256 in the
+export provenance, not by the save version alone. Re-export local data to enable
+that profile. Predictions expose conditions when session state is unavailable;
+they do not simulate future player actions or sequential container openings.

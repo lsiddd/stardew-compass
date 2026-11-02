@@ -20,5 +20,11 @@
     "inputSha256": "3642e6f4cc560e19d9583428d9aa99b6a8764fff914560d27a8b54648795ab40",
     "outputFormat": "JSON object keyed by map name",
     "mapValuesChanged": false
+  },
+  "instance_property_corrections": {
+    "game_version": "1.6.15",
+    "source": "Content/Maps/Mountain.xnb",
+    "source_sha256": "c32e9acc016fcce8a94764662e2b947f727293872f64f408ca1e88382bc27ed3",
+    "method": "xTile BinaryFormat.Load: six tile-instance NoFishing properties at x=47/48,y=3/4/5"
   }
 }

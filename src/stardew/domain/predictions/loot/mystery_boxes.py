@@ -1,8 +1,9 @@
 """Mystery boxes rules adapted from MouseyPounds (MIT; predictor b9e7c71)."""
 
 from ..report_support import PredictionContext, SystemRandom, capture, floor, set_slot
-from .selection import set_object
+from .seasonal_seeds import low_grade_seeds, raccoon_seeds
 from .seeds import player_sequence_seed
+from .selection import set_object
 
 
 def predict_mystery_boxes(
@@ -42,6 +43,19 @@ def predict_mystery_boxes(
             c += 1
         c = 0
         while c < num_columns:
+            seed_result = None
+            alternatives = ()
+            certainty = "saved_state"
+            if item[c] == "Seasonal Seeds":
+                alternatives = low_grade_seeds(
+                    save.get("daysPlayed"), item_qty[c], save["objects"]
+                )
+                certainty = "session_dependent"
+            elif item[c] == "Raccoon Seeds":
+                seed_result, alternatives = raccoon_seeds(
+                    save.get("daysPlayed"), item_qty[c]
+                )
+                certainty = "saved_date" if seed_result else "date_dependent"
             capture(
                 context,
                 "predictMysteryBoxes",
@@ -52,6 +66,17 @@ def predict_mystery_boxes(
                     "item": item,
                     "itemQty": item_qty,
                     "itemIDs": item_ids,
+                    "seedResult": seed_result,
+                    "dropAlternatives": alternatives,
+                    "certainty": certainty,
+                    "openingRule": "Hypothetical opening on the saved date with the stated mastery scenario and saved skill/GotMysteryBook unchanged; later rows do not simulate prior rewards or a later season",
+                    "requiresFishingLevel": 6 if based_on_skill[c] else None,
+                    "farmingMasteryRequired": (c == 2) if c else None,
+                    "matchesSavedMastery": (
+                        save["hasFarmingMastery"] == (c == 2)
+                        if c and save.get("hasFarmingMastery") is not None
+                        else None
+                    ),
                 },
             )
             c += 1
@@ -110,10 +135,10 @@ def _advanced_contents(
 ):
     if c == 2 and rng.double() < 0.005:
         set_slot(item, c, "Golden Animal Cracker")
-        set_slot(item_ids, c, None)
+        set_slot(item_ids, c, "(O)GoldenAnimalCracker")
     elif c > 0 and rng.double() < 0.005:
         set_slot(item, c, "Auto-Petter")
-        set_slot(item_ids, c, None)
+        set_slot(item_ids, c, "(BC)272")
     elif rng.double() < 0.002 * rare_mod:
         set_object(save, item, item_ids, c, "_279")
     elif rng.double() < 0.004 * rare_mod:
@@ -133,13 +158,13 @@ def _advanced_contents(
         set_object(save, item, item_ids, c, str(choices[int(rng.next(len(choices)))]))
     elif rng.double() < 0.01 * rare_mod:
         set_slot(item, c, "Mystery Hat")
-        set_slot(item_ids, c, None)
+        set_slot(item_ids, c, "(H)MysteryHat")
     elif rng.double() < 0.01 * rare_mod:
         set_slot(item, c, "Mystery Shirt")
-        set_slot(item_ids, c, None)
+        set_slot(item_ids, c, "(S)MysteryShirt")
     elif rng.double() < 0.01 * rare_mod:
         set_slot(item, c, "Mystery Wallpaper")
-        set_slot(item_ids, c, None)
+        set_slot(item_ids, c, "(WP)MoreWalls:11")
     elif rng.double() < 0.1 or c > 0:
         match rng.next(15):
             case 0:
@@ -149,7 +174,8 @@ def _advanced_contents(
                 set_object(save, item, item_ids, c, "_253")
                 set_slot(item_qty, c, 3)
             case 2:
-                if rng.double() < 0.5:
+                fishing_level = save.get("fishingLevel")
+                if (fishing_level is None or fishing_level >= 6) and rng.double() < 0.5:
                     choices = ["_687", "_695"]
                     set_object(
                         save,
@@ -158,7 +184,7 @@ def _advanced_contents(
                         c,
                         str(choices[int(rng.next(len(choices)))]),
                     )
-                    set_slot(based_on_skill, c, True)
+                    set_slot(based_on_skill, c, fishing_level is None)
                 else:
                     set_object(save, item, item_ids, c, "_242")
                     set_slot(item_qty, c, 2)
@@ -187,7 +213,7 @@ def _advanced_contents(
             case 10:
                 if rng.double() < 0.5:
                     set_slot(item, c, "Ossified Blade")
-                    set_slot(item_ids, c, None)
+                    set_slot(item_ids, c, "(W)60")
                 else:
                     choices = ["_533", "_534"]
                     set_object(
@@ -201,7 +227,7 @@ def _advanced_contents(
                 set_object(save, item, item_ids, c, "_621")
             case 12:
                 set_slot(item, c, "Mystery Box")
-                set_slot(item_ids, c, None)
+                set_slot(item_ids, c, "(O)MysteryBox")
                 set_slot(item_qty, c, rng.next(3, 5))
             case 13:
                 set_object(save, item, item_ids, c, str(f"_SkillBook_{rng.next(5)}"))
@@ -250,7 +276,7 @@ def _common_contents(save, rng, c, item, item_ids, item_qty, no_link, based_on_s
             set_slot(item_qty, c, 10)
         case 11:
             set_slot(item, c, "Mixed Flower Seeds")
-            set_slot(item_ids, c, None)
+            set_slot(item_ids, c, "(O)MixedFlowerSeeds")
             set_slot(item_qty, c, 10)
         case 12:
             if rng.double() < 0.4:
@@ -267,7 +293,7 @@ def _common_contents(save, rng, c, item, item_ids, item_qty, no_link, based_on_s
                         )
             else:
                 set_slot(item, c, "Mystery Box")
-                set_slot(item_ids, c, None)
+                set_slot(item_ids, c, "(O)MysteryBox")
                 set_slot(item_qty, c, 2)
         case 13:
             set_object(save, item, item_ids, c, "_690")

@@ -1,0 +1,626 @@
+{
+  "source": "Unmodified BaseEnchantment.GetAvailableEnchantmentsForItem and Utility.CreateRandom; DLL f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "game_id": 123456789,
+  "player_id": 101,
+  "cases": [
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Bottomless"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": false,
+      "level": 0,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Fisher"
+      ],
+      "selected": "Fisher"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Bottomless"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": false,
+      "level": 3,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Fisher"
+      ],
+      "selected": "Fisher"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Expansive",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Efficient"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Expansive"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": false,
+      "level": 4,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Expansive",
+        "Fisher"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Bottomless"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 0,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Fisher"
+      ],
+      "selected": "Fisher"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Bottomless"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Efficient"
+      ],
+      "selected": "Efficient"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 3,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Fisher"
+      ],
+      "selected": "Fisher"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Hoe",
+      "history": "two_previous",
+      "pool": [
+        "Expansive",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Bottomless",
+        "Efficient"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Efficient"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "WateringCan",
+      "history": "two_previous",
+      "pool": [
+        "Expansive"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Pan",
+      "history": "fresh",
+      "pool": [
+        "Expansive",
+        "Generous",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Generous"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Pan",
+      "history": "current",
+      "pool": [
+        "Expansive",
+        "Archaeologist",
+        "Fisher"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "legacy": true,
+      "level": 4,
+      "kind": "Pan",
+      "history": "two_previous",
+      "pool": [
+        "Expansive",
+        "Fisher"
+      ],
+      "selected": "Expansive"
+    }
+  ],
+  "sha256": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "runtime": ".NET 6",
+  "enchantments_claimed": 0
+}

@@ -1,5 +1,7 @@
 import struct
+
 import pytest
+
 from stardew.infrastructure.xnb.graphics import MapReader, read_texture, read_visual_map
 
 

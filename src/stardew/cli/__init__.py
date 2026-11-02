@@ -1,15 +1,16 @@
 """One command for reports, isolated predictions, exports and PNG maps."""
 
 from __future__ import annotations
+
 import argparse
 import sys
 import time
 
 from stardew import __version__
-from stardew.api import load_save, load_game_data, analyze, AnalysisOptions
+from stardew.api import AnalysisOptions, analyze, load_game_data, load_save
 from stardew.domain.errors import FeatureUnavailable
-from stardew.infrastructure.saves import SaveError, atomic_write, check_output_path
 from stardew.infrastructure.game_data import DataError
+from stardew.infrastructure.saves import SaveError, atomic_write, check_output_path
 from stardew.presentation.json import render_json
 from stardew.presentation.text import render_text
 
@@ -77,6 +78,8 @@ def parser():
 
 
 def options_for(args):
+    from stardew.domain.predictions.registry import REGISTRY
+
     locations = tuple(args.location) if args.location else None
     prediction_options = None
     if args.start is not None or args.count is not None:
@@ -84,6 +87,16 @@ def options_for(args):
 
         prediction_options = PredictionOptions(start=args.start, count=args.count)
     if args.command == "predict":
+        if args.feature not in REGISTRY and args.feature not in (
+            "bubbles",
+            "artifacts",
+        ):
+            raise ValueError(f"Unknown prediction feature: {args.feature}")
+        if prediction_options is not None and (
+            args.feature in ("bubbles", "artifacts")
+            or REGISTRY[args.feature].range_kind == "fixed"
+        ):
+            raise ValueError(f"--start and --count do not apply to {args.feature}.")
         return AnalysisOptions(
             progress=(),
             predictions=()
@@ -99,10 +112,10 @@ def options_for(args):
     progress = None if args.only in ("all", "progress") else ()
     predictions = None if args.only in ("all", "predictions") else ()
     if args.section:
-        from stardew.domain.progress import PROGRESS_SECTIONS as SECTION_IDS
         from stardew.domain.predictions.report_predictions import (
             SECTION_IDS as PREDICTION_IDS,
         )
+        from stardew.domain.progress import PROGRESS_SECTIONS as SECTION_IDS
 
         unknown = set(args.section) - set(SECTION_IDS) - set(PREDICTION_IDS)
         if unknown:
@@ -111,6 +124,16 @@ def options_for(args):
         predictions = tuple(
             section for section in args.section if section in PREDICTION_IDS
         )
+        if (
+            args.only == "progress"
+            and predictions
+            or args.only == "predictions"
+            and progress
+            or args.only == "extras"
+        ):
+            raise ValueError("--section must belong to the group selected by --only.")
+    if prediction_options is not None and predictions == ():
+        raise ValueError("--start and --count require a prediction section.")
     return AnalysisOptions(
         progress=progress,
         predictions=predictions,
@@ -134,12 +157,23 @@ def main(argv=None):
             return 0
         if bool(args.plot) != bool(args.game_dir):
             raise ValueError("--plot and --game-dir must be supplied together.")
+        options = options_for(args)
+        if args.plot and not (options.bubbles or options.artifacts):
+            raise ValueError("--plot requires bubbles or artifacts.")
+        if args.location and not (options.bubbles or options.artifacts):
+            raise ValueError("--location requires bubbles or artifacts.")
+        if args.resources and not options.bubbles:
+            raise ValueError("--resources applies only to fishing bubble geometry.")
+        if args.data_dir and not options.artifacts:
+            raise ValueError("--data-dir applies only to artifact predictions.")
         state = load_save(args.save)
         output = (
             check_output_path(args.output, state.source) if args.output != "-" else None
         )
-        data = load_game_data(args.data_dir, resources=args.resources)
-        result = analyze(state, data=data, options=options_for(args))
+        data = load_game_data(
+            args.data_dir, resources=args.resources, include_maps=options.bubbles
+        )
+        result = analyze(state, data=data, options=options)
         if args.plot:
             from stardew.presentation.maps import save_plots
 

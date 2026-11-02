@@ -1,6 +1,9 @@
 """Version-specific additions to the pinned MouseyPounds catalogs (MIT)."""
 
-CATALOG_ADDITIONS = {
+from typing import Any
+
+# Catalog patch values contain scalars, records and ordered rule pools.
+CATALOG_ADDITIONS: dict[str, dict[str, list[tuple[str, list[str], Any]]]] = {
     "social": {
         "1.3": [
             ("extend", ["eventList", "Jas"], [[8, 3910979]]),

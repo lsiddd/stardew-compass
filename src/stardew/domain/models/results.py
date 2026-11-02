@@ -1,14 +1,17 @@
 from __future__ import annotations
-from dataclasses import dataclass
+
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Any
-from .state import SaveMetadata, ItemState, ContainerState, AnimalState
-from .predictions import ArtifactResult, BubbleEvent
-from stardew.domain.progress.models import ProgressResult
+
 from stardew.domain.predictions.report_models import (
-    ReportPredictionOptions,
     PredictionSection,
+    ReportPredictionOptions,
 )
+from stardew.domain.progress.models import ProgressResult
+
+from .predictions import ArtifactResult, BubbleEvent
+from .state import AnimalState, ContainerState, ItemState, SaveMetadata
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,6 +61,9 @@ class AnalysisOptions:
     strict: bool = False
 
     def __post_init__(self) -> None:
+        for name in ("extras", "bubbles", "artifacts", "strict"):
+            if not isinstance(getattr(self, name), bool):
+                raise TypeError(f"{name} must be a Boolean")
         for name in ("progress", "predictions", "locations"):
             value = getattr(self, name)
             if value is not None:
@@ -66,7 +72,7 @@ class AnalysisOptions:
                 sequence = tuple(value)
                 if not all(isinstance(item, str) for item in sequence):
                     raise TypeError(f"{name} must be a sequence of strings or None")
-                object.__setattr__(self, name, sequence)
+                object.__setattr__(self, name, tuple(dict.fromkeys(sequence)))
         if isinstance(self.prediction_options, Mapping):
             object.__setattr__(
                 self,

@@ -11,6 +11,7 @@ from ..report_support import (
     random_seed,
     set_slot,
 )
+from .tool_state import eligible_enchantments
 
 
 def predict_enchantments(
@@ -31,7 +32,7 @@ def predict_enchantments(
         times_enchanted = offset + g
         item = []
         if compare_version(save.get("version"), "1.6") >= 0:
-            if not save.get("mp_ids") is None:
+            if save.get("mp_ids") is not None:
                 rng = SystemRandom(
                     random_seed(
                         exact_seed_part(int(times_enchanted - 1)),
@@ -52,6 +53,29 @@ def predict_enchantments(
         else:
             rng = SystemRandom(times_enchanted + save.get("gameID") - 1)
         rand_roll = rng.double()
+        tool_predictions = []
+        for tool in save.get("enchantmentTools", ()):
+            pool = valid_enchants[labels.index(tool["tool"])]
+            known = tool["historyKnown"] and (
+                "Reaching" not in pool or tool["upgradeLevel"] is not None
+            )
+            eligible = (
+                eligible_enchantments(
+                    pool, tool["current"], tool["previous"], tool["upgradeLevel"]
+                )
+                if known
+                else ()
+            )
+            tool_predictions.append(
+                {
+                    **tool,
+                    "eligible": eligible,
+                    "selected": eligible[int(rand_roll * len(eligible))]
+                    if eligible
+                    else None,
+                    "certainty": "saved_tool_state" if known else "missing_tool_state",
+                }
+            )
         c = 0
         while c < num_columns:
             roll = floor(rand_roll * len(valid_enchants[int(c)]))
@@ -79,6 +103,7 @@ def predict_enchantments(
                 "labels": labels,
                 "validEnchants": valid_enchants,
                 "randRoll": rand_roll,
+                **({"toolPredictions": tool_predictions} if tool_predictions else {}),
             },
         )
         g += 1

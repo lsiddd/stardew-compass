@@ -1,7 +1,9 @@
-from dataclasses import fields, is_dataclass
 from collections.abc import Mapping
-from stardew.domain.models.results import AnalysisResult
+from dataclasses import fields, is_dataclass
+
 from stardew.domain.models.game_data import GameData
+from stardew.domain.models.results import AnalysisResult
+
 from .extras import render_extras
 
 
@@ -57,6 +59,7 @@ def progress_item_line(item):
     if item.missing is not None and item.missing > 0:
         detail.append(f"missing: {item.missing}")
     for field in (
+        "category",
         "quality",
         "cost",
         "cost_unit",
@@ -106,6 +109,32 @@ def render_text(result: AnalysisResult, *, data: GameData) -> str:
         f"Save file: {result.save_file}",
         f"Game: {meta.game_version or 'unknown'} | {meta.season or 'unknown'} {meta.day if meta.day is not None else '?'} | year {meta.year if meta.year is not None else '?'} | days played {meta.days_played if meta.days_played is not None else 'unknown'}",
     ]
+    analysis = result.provenance.get("analysis", {})
+    if analysis:
+        out.append(heading("Analysis assumptions"))
+        out.append(
+            f"Engine: {analysis['engine_version']} | Rules: {analysis['rules_version']} ({analysis['version_source']})"
+        )
+        if analysis.get("game_rule_revision"):
+            out.append(f"Game-rule revision: {analysis['game_rule_revision']}")
+        out.extend(
+            str(assumption) for assumption in analysis.get("session_assumptions", ())
+        )
+        if analysis["requested"]["predictions"]:
+            settings = analysis["prediction_settings"]
+            out.append(
+                f"Prediction base luck: {settings['base_daily_luck']:g} ({settings['luck_policy'].replace('_', ' ')}); luck level: {settings['luck_level']}; special charm applied per player."
+            )
+            out.append(
+                "Selected players (zero-based): "
+                + ", ".join(map(str, settings["player_indices"]))
+            )
+        if analysis["requested"]["artifacts"]:
+            out.append(
+                f"Artifact base luck from save: {fact_value(analysis['artifact_daily_luck'])}. "
+                "Effective luck includes Special Charm and the online-player average. "
+                "Each spot is evaluated as the host's next dig; route order is not simulated."
+            )
     for section in result.progress:
         out.append(heading(section.title))
         out.extend(metric_line(metric) for metric in section.metrics)
@@ -121,19 +150,62 @@ def render_text(result: AnalysisResult, *, data: GameData) -> str:
         out.extend("! " + str(note) for note in section.diagnostics)
     for section in result.predictions:
         out.append(heading(section.title))
+        if section.section_id in ("geode", "mystery"):
+            out.append(
+                "Sequence is the opening number, not an item ID. Each container at the same "
+                "number is an alternative for that opening. openings_ahead: 1 means the next opening."
+            )
+            if section.section_id == "geode":
+                out.append(
+                    "Clint shares this counter across geodes, Artifact Troves, Golden Coconuts "
+                    "and Mystery Boxes. Opening a Mystery Box also advances the geode sequence."
+                )
+            counters = {
+                (record.player_id, fact.value)
+                for record in section.records
+                for fact in record.facts
+                if fact.name == "saved_counter"
+            }
+            for player_id, counter in sorted(counters, key=lambda value: str(value[0])):
+                out.append(
+                    f"Player {player_id}: {counter} openings recorded in the save; "
+                    f"next opening: #{counter + 1}."
+                )
+        coverage = analysis.get("prediction_coverage", {}).get(section.section_id)
+        if coverage:
+            if coverage["first_day"] is not None:
+                out.append(
+                    f"Days played: {coverage['first_day']}–{coverage['last_day']}"
+                )
+            if coverage["first_sequence"] is not None:
+                out.append(
+                    f"Sequence: {coverage['first_sequence']}–{coverage['last_sequence']}"
+                )
+        if section.available and not section.records:
+            out.append("No results for the requested range and filters.")
         for record in getattr(section, "records", getattr(section, "entries", ())):
             out.append("* " + record_line(record))
         for note in getattr(section, "diagnostics", ()):
             out.append("! " + str(note))
-    if result.bubbles:
+    if result.bubbles or analysis.get("requested", {}).get("bubbles"):
         out.append(heading("Fishing bubbles"))
+        if any(event.scenario for event in result.bubbles):
+            out.append(
+                "Conditional timelines: a frenzy attempt can select an ineligible fish using session RNG. "
+                "Only events without a scenario occur in every forecast; the alternatives are not simultaneous."
+            )
+        if not result.bubbles:
+            out.append("No results. Check diagnostics for unavailable features.")
         for event in result.bubbles:
             end = clock(event.end) if event.end is not None else ">25:50"
             out.append(
                 f"{event.location:<18} ({event.x},{event.y}) {clock(event.start)}–{end} {event.kind}"
+                + (f" [if {event.scenario}]" if event.scenario else "")
             )
-    if result.artifacts:
+    if result.artifacts or analysis.get("requested", {}).get("artifacts"):
         out.append(heading("Artifact spots"))
+        if not result.artifacts:
+            out.append("No results. Check diagnostics for unavailable features.")
         for spot in result.artifacts:
             loot = " + ".join(
                 f"{item.quantity}× {item.name} [{item.item_id}]" for item in spot.items

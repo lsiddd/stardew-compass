@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from stardew.domain.catalogs.items import ItemCatalog
+
 from .maps import Map
 
 

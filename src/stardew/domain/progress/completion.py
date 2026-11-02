@@ -1,6 +1,6 @@
 """Grandpa scoring and category-wise multiplayer perfection aggregation."""
 
-from .common import integer, object_type, value, values
+from .common import integer, object_type, value
 from .models import ProgressItem, ProgressResult, facts, metric
 from .player import SKILLS, friendship_entries
 
@@ -40,7 +40,7 @@ def grandpa(ctx):
     spouse = ctx.players[0].spouse or ctx.partners.get(ctx.host_id)
     house = ctx.players[0].house_upgrade_level or 0
     family_points = int(bool(spouse) and house >= 2)
-    friendships = friendship_entries(ctx, node)
+    friendships = friendship_entries(ctx, ctx.players[0])
     friends = sum(pts >= 1975 for pts, _ in friendships.values())
     friend_points = 2 if friends >= 10 else 1 if friends >= 5 else 0
     level = sum(integer(node, skill.lower() + "Level") for skill in SKILLS) + integer(
@@ -108,7 +108,7 @@ def grandpa(ctx):
     )
 
 
-def perfection(ctx):
+def perfection(ctx, dependencies):
     weights = {
         "shipping": 15,
         "great_friends": 11,
@@ -122,12 +122,26 @@ def perfection(ctx):
     names = {key: key.replace("_", " ").title() for key in weights}
     metrics = []
     diagnostics = []
+    contributions = tuple(
+        contribution
+        for result in dependencies.values()
+        for contribution in (
+            *result.contributions,
+            *(c for player in result.players for c in player.contributions),
+        )
+    )
     for category, weight in weights.items():
         best_key = None
         best_count, best_total = 0, 1
         best_ratio = -1.0
-        for key, stats in ctx.perfection.items():
-            count, total = stats.get(category, (0, 1))
+        for contribution in contributions:
+            if contribution.category != category:
+                continue
+            key, count, total = (
+                contribution.player_id,
+                contribution.count,
+                contribution.goal,
+            )
             ratio = min(1, count / total) if total else 0
             if ratio > best_ratio:
                 best_key, best_count, best_total, best_ratio = key, count, total, ratio
@@ -169,9 +183,8 @@ def perfection(ctx):
     metrics.append(
         metric("gold_clock", "Gold Clock", int("Gold Clock" in buildings), 1, weight=10)
     )
-    count, total = getattr(
-        ctx, "walnut_progress", (integer(ctx.root, "goldenWalnutsFound"), 130)
-    )
+    walnut = next(c for c in contributions if c.category == "walnuts")
+    count, total = walnut.count, walnut.goal
     metrics.append(metric("walnuts", "Golden Walnuts", count, total, weight=5))
     raw = sum(m.earned or 0 for m in metrics)
     waivers = (

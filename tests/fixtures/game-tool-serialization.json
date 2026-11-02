@@ -1,0 +1,40 @@
+{
+  "source": "XmlSerializer(typeof(Hoe)).Serialize and Deserialize on original Stardew game types; no save loaded",
+  "sha256": "f3e97f01d3fd2b1e6094fc8d2b59950aa6cb9d6cd1bf1b39d72d58edda8aad12",
+  "runtime": ".NET 6",
+  "cases": [
+    {
+      "populated": false,
+      "xml": "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<Hoe xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n  <isLostItem>false</isLostItem>\n  <category>-99</category>\n  <hasBeenInInventory>false</hasBeenInInventory>\n  <name>Hoe</name>\n  <specialItem>false</specialItem>\n  <isRecipe>false</isRecipe>\n  <quality>0</quality>\n  <stack>1</stack>\n  <modData />\n  <SpecialVariable>0</SpecialVariable>\n  <initialParentTileIndex>21</initialParentTileIndex>\n  <currentParentTileIndex>21</currentParentTileIndex>\n  <indexOfMenuItemView>47</indexOfMenuItemView>\n  <instantUse>false</instantUse>\n  <isEfficient>false</isEfficient>\n  <animationSpeedModifier>1</animationSpeedModifier>\n  <swingTicker>97644</swingTicker>\n  <upgradeLevel>4</upgradeLevel>\n  <numAttachmentSlots>0</numAttachmentSlots>\n  <attachments />\n  <InitialParentTileIndex>21</InitialParentTileIndex>\n  <IndexOfMenuItemView>47</IndexOfMenuItemView>\n  <InstantUse>false</InstantUse>\n  <IsEfficient>false</IsEfficient>\n  <AnimationSpeedModifier>1</AnimationSpeedModifier>\n</Hoe>",
+      "upgrade": 4,
+      "current": [],
+      "previous": [],
+      "pool": [
+        "Expansive",
+        "Generous",
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Expansive"
+    },
+    {
+      "populated": true,
+      "xml": "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<Hoe xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n  <isLostItem>false</isLostItem>\n  <category>-99</category>\n  <hasBeenInInventory>false</hasBeenInInventory>\n  <name>Hoe</name>\n  <specialItem>false</specialItem>\n  <isRecipe>false</isRecipe>\n  <quality>0</quality>\n  <stack>1</stack>\n  <modData />\n  <SpecialVariable>0</SpecialVariable>\n  <initialParentTileIndex>21</initialParentTileIndex>\n  <currentParentTileIndex>21</currentParentTileIndex>\n  <indexOfMenuItemView>47</indexOfMenuItemView>\n  <instantUse>false</instantUse>\n  <isEfficient>false</isEfficient>\n  <animationSpeedModifier>1</animationSpeedModifier>\n  <swingTicker>795883</swingTicker>\n  <upgradeLevel>4</upgradeLevel>\n  <numAttachmentSlots>0</numAttachmentSlots>\n  <attachments />\n  <enchantments xsi:type=\"GenerousEnchantment\">\n    <level>1</level>\n  </enchantments>\n  <previousEnchantments>Generous</previousEnchantments>\n  <previousEnchantments>Expansive</previousEnchantments>\n  <InitialParentTileIndex>21</InitialParentTileIndex>\n  <IndexOfMenuItemView>47</IndexOfMenuItemView>\n  <InstantUse>false</InstantUse>\n  <IsEfficient>false</IsEfficient>\n  <AnimationSpeedModifier>1</AnimationSpeedModifier>\n</Hoe>",
+      "upgrade": 4,
+      "current": [
+        "Generous"
+      ],
+      "previous": [
+        "Generous",
+        "Expansive"
+      ],
+      "pool": [
+        "Archaeologist",
+        "Efficient",
+        "Swift"
+      ],
+      "selected": "Archaeologist"
+    }
+  ]
+}

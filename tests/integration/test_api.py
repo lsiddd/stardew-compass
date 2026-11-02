@@ -1,11 +1,11 @@
-import json
 from pathlib import Path
-from dataclasses import replace
+
 import pytest
-from stardew.api import load_save, load_game_data, analyze, AnalysisOptions
+
+from stardew.api import AnalysisOptions, analyze, load_game_data, load_save
+from stardew.domain.errors import FeatureUnavailable
 from stardew.presentation.json import render_json
 from stardew.presentation.text import render_text
-from stardew.domain.errors import FeatureUnavailable
 
 
 @pytest.fixture
@@ -70,6 +70,13 @@ def test_external_data_requires_provenance(tmp_path):
     with pytest.raises(ValueError, match="provenance"):
         load_game_data(tmp_path)
     (tmp_path / "provenance.json").write_text('{"sources": {"synthetic": "hash"}}')
+    with pytest.raises(ValueError, match="Objects/one"):
+        load_game_data(tmp_path)
+    fixtures = Path(__file__).parents[1] / "fixtures"
+    for name in ("Objects", "Locations", "ObjectNames"):
+        (tmp_path / (name + ".json")).write_bytes(
+            (fixtures / ("artifact-" + name + ".json")).read_bytes()
+        )
     data = load_game_data(tmp_path)
     assert data.provenance["game_tables"]["sources"]["synthetic"] == "hash"
     with pytest.raises(TypeError):
@@ -80,6 +87,7 @@ def test_analysis_options_freeze_inputs_and_accept_nested_prediction_settings(
     simple_state,
 ):
     from types import MappingProxyType
+
     from stardew.api import ReportPredictionOptions
 
     sections = ["summary"]

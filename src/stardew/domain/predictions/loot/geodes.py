@@ -8,8 +8,8 @@ from ..report_support import (
     floor,
     set_slot,
 )
-from .selection import append_object, set_object
 from .seeds import player_sequence_seed
+from .selection import append_object, set_object
 
 
 def predict_geodes(
@@ -44,6 +44,16 @@ def predict_geodes(
             _mineral_contents(save, rng, sequence, items, item_ids)
         else:
             _basic_contents(save, rng, items, item_ids, quantities)
+        alternatives, opening_rules = _opening_results(
+            save,
+            items,
+            item_ids,
+            quantities,
+            beans,
+            trove_beans,
+            hat,
+            (5 if roll < 0.25 else 1) if modern else None,
+        )
         for column in range(columns):
             capture(
                 context,
@@ -58,8 +68,98 @@ def predict_geodes(
                     "couldBeBeansTrove": trove_beans,
                     "couldBeHat": hat,
                     "itemIDs": item_ids,
+                    "dropAlternatives": alternatives[column],
+                    "openingRule": opening_rules[column],
                 },
             )
+
+
+def _opening_results(
+    save, items, item_ids, quantities, beans, trove_beans, hat, bean_quantity
+):
+    """Apply saved-state gates in the order of Utility and Clint's menu.
+
+    Each column asks what opening this container at the selected counter would
+    give with the saved flags. It does not simulate earlier hypothetical opens.
+    """
+    alternatives = [[] for _ in items]
+    opening_rules = ["Clint; saved flags unchanged"] * len(items)
+
+    def replace(column, item_id, name, quantity, rule):
+        items[column], item_ids[column], quantities[column] = name, item_id, quantity
+        opening_rules[column] = rule
+
+    for column in range(len(items)):
+        bean_roll = trove_beans if column >= 4 else beans
+        if bean_roll:
+            if save.get("qiCropsActive") and bean_quantity is not None:
+                replace(
+                    column,
+                    "(O)890",
+                    "Qi Bean",
+                    bean_quantity,
+                    "Active Qi crop challenge",
+                )
+            else:
+                alternatives[column].append(
+                    (
+                        "Qi crop challenge active when opened",
+                        "(O)890",
+                        "Qi Bean",
+                        bean_quantity,
+                    )
+                )
+        if column == 5 and hat and item_ids[column] != "(O)890":
+            has_hat = save.get("hasGoldenCoconutHat")
+            if has_hat is False:
+                replace(
+                    column, "(H)75", "Golden Helmet", 1, "Golden Helmet not collected"
+                )
+            elif has_hat is None:
+                alternatives[column].append(
+                    (
+                        "Golden Helmet not previously collected",
+                        "(H)75",
+                        "Golden Helmet",
+                        1,
+                    )
+                )
+
+        # This replacement belongs to GeodeMenu, outside the geode loot helper.
+        object_data = save["objects"].get("_" + item_ids[column].removeprefix("(O)"))
+        if column != 4 and object_data and object_data.get("type") == "Arch":
+            found_artifact = save.get("hasArtifactFound")
+            if found_artifact is False:
+                replace(
+                    column,
+                    "(O)390",
+                    "Stone",
+                    5,
+                    "No artifactFound mail received or pending",
+                )
+            elif found_artifact is None:
+                alternatives[column].append(
+                    ("No artifactFound mail received or pending", "(O)390", "Stone", 5)
+                )
+
+        # GeodeMenu bypasses Utility entirely for the first golden coconut.
+        if column == 5:
+            cracked = save.get("goldenCoconutCracked")
+            if cracked is False:
+                replace(
+                    column, "(O)73", "Golden Walnut", 1, "First Golden Coconut at Clint"
+                )
+                alternatives[column].clear()
+            elif cracked is None:
+                alternatives[column].append(
+                    (
+                        "First Golden Coconut opened at Clint",
+                        "(O)73",
+                        "Golden Walnut",
+                        1,
+                    )
+                )
+    return alternatives, opening_rules
 
 
 def _trove_contents(

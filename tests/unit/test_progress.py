@@ -1,11 +1,12 @@
 """Native progress regression facts, including all legacy sections and version branches."""
 
-from dataclasses import FrozenInstanceError
 import json
+from dataclasses import FrozenInstanceError
 from pathlib import Path
-from types import SimpleNamespace
+
 import pytest
 from lxml import etree
+
 from stardew.domain.progress import PROGRESS_SECTIONS, analyze_progress
 from stardew.domain.progress.common import Context
 from stardew.infrastructure.game_data.loader import load_game_data
@@ -194,7 +195,7 @@ def test_perfection_selection_order_and_call_isolation(data):
 
 
 def test_perfection_uses_best_player_per_category(data):
-    host = make_state()
+    make_state()
     farmhand = (
         "<Farmer>"
         + player_xml("Farmhand", "-9223372036854775808")
@@ -208,9 +209,22 @@ def test_perfection_uses_best_player_per_category(data):
     from stardew.domain.progress.completion import perfection
 
     first, second = (ctx.player_id(p) for p in state.players)
-    ctx.perfection[first] = {"cooking": (81, 81), "shipping": (1, 155)}
-    ctx.perfection[second] = {"cooking": (1, 81), "shipping": (155, 155)}
-    result = perfection(ctx)
+    from stardew.domain.progress.models import CompletionContribution, ProgressResult
+
+    dependencies = {
+        "categories": ProgressResult(
+            "categories",
+            "Categories",
+            contributions=(
+                CompletionContribution("cooking", first, 81, 81),
+                CompletionContribution("shipping", first, 1, 155),
+                CompletionContribution("cooking", second, 1, 81),
+                CompletionContribution("shipping", second, 155, 155),
+                CompletionContribution("walnuts", None, 0, 130),
+            ),
+        )
+    }
+    result = perfection(ctx, dependencies)
     assert get_metric(result, "cooking").player_id == first
     assert get_metric(result, "shipping").player_id == second
     assert get_metric(result, "cooking").earned == 10
@@ -258,8 +272,20 @@ def test_zero_perfection_keeps_category_goals(data):
 
     ctx = Context(make_state(), data)
     key = ctx.host_id
-    ctx.perfection[key] = {"cooking": (0, 81), "crafting": (0, 149)}
-    result = perfection(ctx)
+    from stardew.domain.progress.models import CompletionContribution, ProgressResult
+
+    dependencies = {
+        "categories": ProgressResult(
+            "categories",
+            "Categories",
+            contributions=(
+                CompletionContribution("cooking", key, 0, 81),
+                CompletionContribution("crafting", key, 0, 149),
+                CompletionContribution("walnuts", None, 0, 130),
+            ),
+        )
+    }
+    result = perfection(ctx, dependencies)
     assert get_metric(result, "cooking").goal == 81
     assert get_metric(result, "crafting").goal == 149
     assert get_metric(result, "cooking").player_id == key
@@ -300,6 +326,7 @@ def test_structured_skill_relationship_and_cost_details(results):
 
 def test_default_secret_note_statue_does_not_count_as_collected(data):
     from dataclasses import replace
+
     from stardew.domain.models import SaveNode, freeze
     from stardew.domain.progress import world
 
@@ -342,7 +369,7 @@ def test_case_specific_monster_identity_is_preserved(data):
     state = make_state()
     ctx = Context(state, data)
     from dataclasses import replace
-    from stardew.domain.models import SaveNode
+
     from stardew.domain.progress.player import monsters
 
     node = state.players[0].snapshot
@@ -530,7 +557,7 @@ def test_progress_uses_exact_loaded_player_statistics(data):
 
 
 def test_text_and_json_preserve_progress_details(data):
-    from stardew.api import analyze, AnalysisOptions
+    from stardew.api import AnalysisOptions, analyze
     from stardew.presentation.json import render_json
     from stardew.presentation.text import render_text
 

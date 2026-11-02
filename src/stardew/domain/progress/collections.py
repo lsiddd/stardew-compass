@@ -1,7 +1,14 @@
 """Collections, recipes, shipping, and museum progress (MouseyPounds rules, MIT)."""
 
-from .common import counts, dictionary, integer, item_id, number, value
-from .models import ProgressItem, ProgressResult, facts, metric
+from .common import counts, integer, item_id, value
+from .models import (
+    CompletionContribution,
+    ProgressItem,
+    ProgressMetric,
+    ProgressResult,
+    facts,
+    metric,
+)
 
 
 def recipes(ctx, cooking):
@@ -19,8 +26,7 @@ def recipes(ctx, cooking):
     reverse = {name: key for key, name in catalog.items()}
     players = []
     for player in ctx.players:
-        node = player.snapshot
-        raw = counts(node, section + "Recipes")
+        raw = player.collection_counts[section + "Recipes"]
         known = {
             aliases.get(name, name): num
             for name, num in raw.items()
@@ -29,7 +35,7 @@ def recipes(ctx, cooking):
         base_known = {name: num for name, num in known.items() if name in reverse}
         mods = {name: num for name, num in known.items() if name not in reverse}
         crafted_raw = (
-            counts(node, "recipesCooked")
+            player.collection_counts["recipesCooked"]
             if cooking
             else {reverse[name]: num for name, num in base_known.items()}
         )
@@ -53,7 +59,6 @@ def recipes(ctx, cooking):
             for key, name in catalog.items()
             if key not in crafted
         ]
-        prefix = ("cook", "Cook") if cooking else ("craft", "Craft")
         milestones = (
             (("cook", "Cook", 10), ("sous_chef", "Sous Chef", 25))
             if cooking
@@ -81,7 +86,7 @@ def recipes(ctx, cooking):
             )
         )
         key = ctx.player_id(player)
-        ctx.perfection[key][section] = (len(crafted), len(catalog))
+        contribution = CompletionContribution(section, key, len(crafted), len(catalog))
         players.append(
             ctx.player_result(
                 player,
@@ -92,6 +97,7 @@ def recipes(ctx, cooking):
                     mod_known=len(mods),
                     mod_crafted=mod_crafted,
                 ),
+                contributions=(contribution,),
             )
         )
     return ProgressResult(section, section.title(), players=tuple(players))
@@ -111,11 +117,10 @@ def fishing(ctx):
         ignore |= {"372", *extras}
     players = []
     for player in ctx.players:
-        raw = {}
-        for entry in player.snapshot.findall("fishCaught/item"):
-            raw[item_id(value(entry, "key/*", ""))] = integer(
-                entry, "value/ArrayOfInt/int"
-            )
+        raw = {
+            item_id(key): count
+            for key, count in player.collection_counts["fishCaught"].items()
+        }
         caught = {key: count for key, count in raw.items() if count > 0}
         base = {
             key: count
@@ -157,7 +162,9 @@ def fishing(ctx):
         bobbers = min(39, 1 + len(caught) // 2)
         if ctx.version >= (1, 6, 0):
             metrics.append(metric("bobber_styles", "Bobber styles", bobbers, 39))
-        ctx.perfection[ctx.player_id(player)]["fishing"] = (len(base), len(catalog))
+        contribution = CompletionContribution(
+            "fishing", ctx.player_id(player), len(base), len(catalog)
+        )
         players.append(
             ctx.player_result(
                 player,
@@ -172,6 +179,7 @@ def fishing(ctx):
                         key for key in extras if key not in caught
                     ),
                 ),
+                contributions=(contribution,),
             )
         )
     return ProgressResult("fishing", "Fishing", players=tuple(players))
@@ -190,7 +198,7 @@ def shipping(ctx, crops=False):
     }
     players = []
     for player in ctx.players:
-        raw = counts(player.snapshot, "basicShipped")
+        raw = player.collection_counts["basicShipped"]
         target = 15 if crops else 1
         done = sum(raw.get(key, 0) >= target for key in catalog)
         missing = tuple(
@@ -209,7 +217,7 @@ def shipping(ctx, crops=False):
             pool = {**catalog, **extra}
             max_key = max(pool, key=lambda key: raw.get(key, 0), default="")
             max_count = raw.get(max_key, 0)
-            metrics = (
+            metrics: tuple[ProgressMetric, ...] = (
                 metric(
                     "polyculture",
                     "Polyculture",
@@ -234,8 +242,18 @@ def shipping(ctx, crops=False):
                 ),
             )
             detail = ()
-            ctx.perfection[ctx.player_id(player)]["shipping"] = (done, len(catalog))
-        players.append(ctx.player_result(player, metrics, missing, detail))
+            contribution = CompletionContribution(
+                "shipping", ctx.player_id(player), done, len(catalog)
+            )
+        players.append(
+            ctx.player_result(
+                player,
+                metrics,
+                missing,
+                detail,
+                contributions=() if crops else (contribution,),
+            )
+        )
     return ProgressResult(
         "crop_shipping" if crops else "basic_shipping",
         "Crop Shipping" if crops else "Basic Shipping",
@@ -246,7 +264,7 @@ def shipping(ctx, crops=False):
 def museum(ctx):
     artifacts, minerals = ctx.catalog("artifacts"), ctx.catalog("minerals")
     all_items = {**artifacts, **minerals}
-    donated = set()
+    donated: set[str] = set()
     for location in ctx.locations("LibraryMuseum"):
         donated.update(
             value(entry, "value/*", "")

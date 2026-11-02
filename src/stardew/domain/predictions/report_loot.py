@@ -1,8 +1,8 @@
 """Loot calculation entry points; implementations live in feature modules."""
 
+from .loot.enchantments import predict_enchantments
 from .loot.geodes import predict_geodes
 from .loot.mystery_boxes import predict_mystery_boxes
-from .loot.enchantments import predict_enchantments
 from .loot.prize_tickets import predict_prize_ticket
 from .loot.raccoons import predict_raccoon
 

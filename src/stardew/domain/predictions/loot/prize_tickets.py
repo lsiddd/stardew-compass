@@ -9,6 +9,7 @@ from ..report_support import (
     fmod,
     random_seed,
 )
+from .seasonal_seeds import raccoon_seeds
 
 
 def predict_prize_ticket(
@@ -21,7 +22,7 @@ def predict_prize_ticket(
         offset = page_size * floor(
             save.get("ticketPrizesClaimed")[int(which_player)] / page_size
         )
-    if not save.get("mp_ids") is None:
+    if save.get("mp_ids") is not None:
         rng = SystemRandom(
             random_seed(
                 exact_seed_part(int(save.get("gameID"))),
@@ -39,6 +40,20 @@ def predict_prize_ticket(
         num_opened = offset + g
         prize_level = num_opened - 1
         item, item_qty = _prize_contents(save, prize_level, rand_roll)
+        item_id = None
+        alternatives = ()
+        condition = "Claimed with saved house level unchanged"
+        if item == "Sports Cap":
+            item_id = "(H)SportsCap"
+        elif item.startswith("House Plant ("):
+            item_id = f"(F)FancyHousePlant{item[-2]}"
+        elif item.startswith("Fancy House Plant ("):
+            item_id = f"(F)FancyTree{item[-2]}"
+        elif item == "Raccoon Seeds":
+            seed_result, alternatives = raccoon_seeds(save.get("daysPlayed"), item_qty)
+            if seed_result:
+                item_id, item = seed_result["item_id"], seed_result["name"]
+            condition = "Seed type assumes claiming on the saved date; delaying collection can change it"
         capture(
             context,
             "predictPrizeTicket",
@@ -48,6 +63,9 @@ def predict_prize_ticket(
                 "item": item,
                 "itemQty": item_qty,
                 "prizeLevel": prize_level,
+                "item_id": item_id,
+                "seedAlternatives": alternatives,
+                "conditions": condition,
             },
         )
         g += 1
@@ -76,7 +94,11 @@ def _prize_contents(save, prize_level, rand_roll):
         case 15 | 4:
             item = "Stardrop Tea"
         case 5:
-            item = "Blue Pinstripe Bed"
+            item = (
+                "Blue Pinstripe Double Bed"
+                if (save.get("houseUpgradeLevel") or 0) > 0
+                else "Blue Pinstripe Bed"
+            )
         case 6:
             match floor(3 * rand_roll):
                 case 0:

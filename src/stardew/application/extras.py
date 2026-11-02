@@ -1,21 +1,23 @@
 """Additional saved facts as structured results, shared by text and JSON."""
 
+from stardew.domain.models.game_data import GameData
 from stardew.domain.models.results import ExtrasPlayer, ExtrasResult, ShippedItem
 from stardew.domain.models.state import GameState
-from stardew.domain.models.game_data import GameData
 
 
 def analyze_extras(state: GameState, data: GameData) -> ExtrasResult:
     players = []
     for player in state.players:
         shipped = []
-        for identifier, value in player.collections["basicShipped"].items():
+        for identifier, quantity in player.collection_counts.get(
+            "basicShipped", {}
+        ).items():
             identifier = identifier.removeprefix("(O)")
             shipped.append(
                 ShippedItem(
                     identifier,
                     data.items.name(identifier),
-                    int(value.value("int", "0")),
+                    quantity,
                 )
             )
         shipped.sort(
@@ -36,11 +38,16 @@ def analyze_extras(state: GameState, data: GameData) -> ExtrasResult:
             )
         )
     rarecrows = set()
-    for node in state.snapshot.iter():
+    nodes = (
+        state.index.objects_by_name.get("Rarecrow", ())
+        if state.index is not None
+        else state.snapshot.iter()
+    )
+    for node in nodes:
         if node.value("name") == "Rarecrow":
-            identifier = node.value("parentSheetIndex") or node.value("itemId")
-            if identifier:
-                rarecrows.add(data.items.name(identifier, big_craftable=True))
+            rarecrow_id = node.value("parentSheetIndex") or node.value("itemId")
+            if rarecrow_id:
+                rarecrows.add(data.items.name(rarecrow_id, big_craftable=True))
     return ExtrasResult(
         tuple(players),
         state.world.containers,

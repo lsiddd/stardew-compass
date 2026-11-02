@@ -1,8 +1,8 @@
 """End-to-end contracts for the unified command and schema."""
 
 import json
-from pathlib import Path
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import pytest
 
@@ -92,7 +92,7 @@ def test_bubble_json_is_structured_and_working_directory_independent(
     assert result["bubbles"]
     assert {event["location"] for event in result["bubbles"]} == {"Mountain"}
     assert all(
-        set(event) == {"location", "x", "y", "start", "end", "kind"}
+        set(event) == {"location", "x", "y", "start", "end", "kind", "scenario"}
         for event in result["bubbles"]
     )
     assert result["artifacts"] == [] and result["progress"] == []
@@ -134,7 +134,7 @@ def test_isolated_unavailable_features_fail(map_save, capsys):
     original = map_save.read_text()
     map_save.write_text(original.replace("1.6.15", "1.7.0"))
     assert main(["predict", "bubbles", str(map_save)]) == 1
-    assert "1.6.9" in capsys.readouterr().err
+    assert "1.6.15" in capsys.readouterr().err
     map_save.write_text(
         original.replace("<itemId>Hoe</itemId>", "<itemId>Axe</itemId>")
     )
@@ -300,3 +300,72 @@ def test_calendar_interval_spans_native_month_pages(map_save, capsys):
     result = json.loads(capsys.readouterr().out)
     records = result["predictions"][0]["records"]
     assert [record["date"]["days_played"] for record in records] == list(range(1, 57))
+
+
+@pytest.mark.parametrize("command", [("predict", "geode"), ("report",)])
+def test_default_geode_output_contains_only_next_openings(map_save, capsys, command):
+    original = map_save.read_text()
+    map_save.write_text(
+        original.replace(
+            "<player>", "<player><UniqueMultiplayerID>101</UniqueMultiplayerID>"
+        ).replace("<stats>", "<stats><geodesCracked>467</geodesCracked>")
+    )
+    args = [*command, str(map_save)]
+    if command == ("report",):
+        args.extend(("--section", "geode"))
+    assert main([*args, "--format", "json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    rows = payload["predictions"][0]["records"]
+    assert {row["sequence"] for row in rows} == set(range(468, 488))
+    for row in rows:
+        facts = {fact["name"]: fact["value"] for fact in row["facts"]}
+        assert facts["saved_counter"] == 467
+        assert facts["openings_ahead"] == row["sequence"] - 467
+    assert main(args) == 0
+    text = capsys.readouterr().out
+    assert "Sequence: 468–487" in text
+    assert "467 openings recorded in the save; next opening: #468" in text
+    assert "not an item ID" in text
+
+
+@pytest.mark.parametrize(
+    "args,message",
+    [
+        (
+            ["report", "missing", "--only", "progress", "--section", "train"],
+            "--section",
+        ),
+        (["report", "missing", "--only", "extras", "--count", "2"], "--count"),
+        (["predict", "bubbles", "missing", "--start", "1"], "--start"),
+        (["predict", "gembirds", "missing", "--count", "2"], "--count"),
+        (
+            ["report", "missing", "--only", "extras", "--data-dir", "tables"],
+            "--data-dir",
+        ),
+        (["predict", "train", "missing", "--location", "Town"], "--location"),
+    ],
+)
+def test_inapplicable_flags_fail_before_save_loading(
+    args, message, monkeypatch, capsys
+):
+    def unexpected_read(_path):
+        raise AssertionError("invalid request reached file I/O")
+
+    monkeypatch.setattr("stardew.cli.load_save", unexpected_read)
+    assert main(args) == 1
+    assert message in capsys.readouterr().err
+
+
+def test_summary_does_not_load_geometry(map_save, monkeypatch, capsys):
+    def unexpected_maps():
+        raise AssertionError("summary loaded map geometry")
+
+    monkeypatch.setattr(
+        "stardew.infrastructure.game_data.loader.bundled_maps", unexpected_maps
+    )
+    assert (
+        main(["report", str(map_save), "--section", "summary", "--format", "json"]) == 0
+    )
+    assert json.loads(capsys.readouterr().out)["provenance"]["maps"] == {
+        "loaded": False
+    }

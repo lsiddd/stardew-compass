@@ -2,17 +2,17 @@
 
 from collections.abc import Sequence
 
-from stardew.domain.models.state import GameState
 from stardew.domain.models.game_data import GameData
+from stardew.domain.models.state import GameState
 
 from . import collections, completion, player, world
 from .common import Context
 from .models import (
+    PlayerProgress,
     ProgressFact,
     ProgressItem,
     ProgressMetric,
     ProgressResult,
-    PlayerProgress,
 )
 
 PROGRESS_SECTIONS = (
@@ -70,7 +70,6 @@ RULES = {
     "grandpa": completion.grandpa,
     "walnuts": world.walnuts,
     "island_upgrades": world.island_upgrades,
-    "perfection_tracker": completion.perfection,
     "arcade_games": player.arcade,
     "animals": world.animals,
 }
@@ -112,7 +111,7 @@ def analyze_progress(
     A fresh context per call prevents stale multiplayer or perfection state. Caller
     order only controls returned order; it cannot alter computed category values.
     """
-    selected = PROGRESS_SECTIONS if sections is None else tuple(sections)
+    selected = PROGRESS_SECTIONS if sections is None else tuple(dict.fromkeys(sections))
     invalid = set(selected) - set(PROGRESS_SECTIONS)
     if invalid:
         raise ValueError("Unknown progress section(s): " + ", ".join(sorted(invalid)))
@@ -140,7 +139,11 @@ def analyze_progress(
                 diagnostics=(f"Requires game version {required_version} or later.",),
             )
         else:
-            results[section] = RULES[section](ctx)
+            results[section] = (
+                completion.perfection(ctx, results)
+                if section == "perfection_tracker"
+                else RULES[section](ctx)
+            )
     return tuple(results[section] for section in selected)
 
 

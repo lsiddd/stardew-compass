@@ -2,27 +2,33 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from os import PathLike
-import zlib
+import math
 import re
+import zlib
+from os import PathLike
+from pathlib import Path
+
 from lxml import etree
 
 from stardew.domain.models import (
-    SaveNode,
-    SaveMetadata,
-    GameState,
-    PlayerState,
-    ItemState,
-    ContainerState,
-    BuildingState,
-    LocationState,
     AnimalState,
-    WorldState,
+    BuildingState,
+    ContainerState,
+    GameState,
+    ItemState,
+    LocationState,
     NpcState,
-    freeze,
+    PlayerState,
+    SaveMetadata,
+    SaveNode,
+    WorldState,
     dictionary,
+    freeze,
 )
+from stardew.domain.models.state import PlacedObjectState, RelationshipState
+
+from ..streams import read_bounded
+from .index import build_index
 
 MAX_SAVE_BYTES = 128 * 1024 * 1024
 XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
@@ -97,12 +103,20 @@ def item_state(node, slot):
         boolean(node, "isRecipe"),
         boolean(node, "bigCraftable"),
         inventory(node.find("attachments")),
-        frozenset(
-            child.get(XSI + "type", child.tag).split(":")[-1]
-            for child in node.findall("enchantments/*")
-        ),
+        frozenset(enchantment_types(node)),
         node,
     )
+
+
+def enchantment_types(node):
+    """Tools use repeated XmlElement entries; accept older wrapped fixtures too."""
+    for entry in node.findall("enchantments"):
+        kind = entry.get(XSI + "type")
+        if kind:
+            yield kind.split(":")[-1]
+        else:
+            for child in entry:
+                yield child.get(XSI + "type", child.tag).split(":")[-1]
 
 
 def inventory(node):
@@ -143,6 +157,20 @@ def player_state(node: SaveNode, legacy_stats: SaveNode | None = None) -> Player
             equipped[field] = (
                 inventory(child) if field == "trinketItems" else (item_state(child, 1),)
             )
+    friendships = dictionary(node.find("friendshipData"))
+    collection_names = (
+        "basicShipped",
+        "fishCaught",
+        "cookingRecipes",
+        "craftingRecipes",
+        "recipesCooked",
+        "mineralsFound",
+        "archaeologyFound",
+        "friendships",
+        "friendshipData",
+        "specialItems",
+    )
+    collections = {key: dictionary(node.find(key)) for key in collection_names}
     return PlayerState(
         node.value("name", "Unknown"),
         integer(node, "UniqueMultiplayerID"),
@@ -156,24 +184,8 @@ def player_state(node: SaveNode, legacy_stats: SaveNode | None = None) -> Player
         ),
         freeze({skill: integer(node, skill + "Level") for skill in SKILLS}),
         frozenset(child.text("") for child in node.findall("mailReceived/*")),
-        freeze(
-            {
-                key: dictionary(node.find(key))
-                for key in (
-                    "basicShipped",
-                    "fishCaught",
-                    "cookingRecipes",
-                    "craftingRecipes",
-                    "recipesCooked",
-                    "mineralsFound",
-                    "archaeologyFound",
-                    "friendships",
-                    "friendshipData",
-                    "specialItems",
-                )
-            }
-        ),
-        dictionary(node.find("friendshipData")),
+        freeze(collections),
+        friendships,
         node.findall("questLog/*"),
         node,
         gender=node.value("gender"),
@@ -189,14 +201,52 @@ def player_state(node: SaveNode, legacy_stats: SaveNode | None = None) -> Player
         ),
         milliseconds_played=integer(node, "millisecondsPlayed"),
         use_separate_wallets=boolean(node, "useSeparateWallets"),
+        collection_counts=freeze(
+            {
+                name: {
+                    key: statistic_integer(
+                        value.value("ArrayOfInt/int") or value.value("int") or "0",
+                        f"{name}/{key}",
+                    )
+                    for key, value in collections[name].items()
+                }
+                for name in (
+                    "basicShipped",
+                    "fishCaught",
+                    "cookingRecipes",
+                    "craftingRecipes",
+                    "recipesCooked",
+                    "mineralsFound",
+                    "archaeologyFound",
+                )
+            }
+        ),
+        friendship_facts=freeze(
+            {
+                name: RelationshipState(
+                    integer(value, "Friendship/Points", 0),
+                    "Roommate"
+                    if value.value("Friendship/Status") == "Married"
+                    and value.value("Friendship/RoommateMarriage") == "true"
+                    else value.value("Friendship/Status", "Friendly"),
+                )
+                for name, value in friendships.items()
+            }
+        ),
+        legacy_friendship_facts=freeze(
+            {
+                name: RelationshipState(integer(value, "ArrayOfInt/int", 0), "Friendly")
+                for name, value in collections["friendships"].items()
+            }
+        ),
     )
 
 
-def player_nodes(root):
+def player_nodes(root, index):
     host = root.find("player")
     yield host
     seen = {host.value("UniqueMultiplayerID")}
-    for node in (*root.findall("farmhands/Farmer"), *root.findall(".//farmhand")):
+    for node in (*root.findall("farmhands/Farmer"), *index.by_tag.get("farmhand", ())):
         identifier = node.value("UniqueMultiplayerID")
         if node.value("name") and (identifier is None or identifier not in seen):
             seen.add(identifier)
@@ -205,6 +255,7 @@ def player_nodes(root):
 
 def containers(root, farmers):
     found = []
+    farmer_nodes = frozenset(id(farmer) for farmer in farmers)
 
     def walk(node, trail=(), parent=None, grandparent=None):
         parts = trail
@@ -220,13 +271,13 @@ def containers(root, farmers):
                 *parts,
                 f"{node.value('buildingType', 'Building')} ({node.value('tileX', '?')}, {node.value('tileY', '?')})",
             )
-        elif any(node is farmer for farmer in farmers):
+        elif id(node) in farmer_nodes:
             parts = (*parts, f"Inventory: {node.value('name')}")
-        is_chest = present(node) and (
+        is_chest = (
             node.get(XSI + "type", "").split(":")[-1] == "Chest"
             or node.tag == "Chest"
             or (node.tag == "fridge" and node.find("items") is not None)
-        )
+        ) and present(node)
         if is_chest:
             tile = (
                 grandparent.find("key/Vector2")
@@ -272,19 +323,28 @@ def containers(root, farmers):
             )
             parts = (*parts, "inside " + (node.value("name") or "Chest"))
         for child in node:
-            walk(child, parts, node, parent)
+            if child.children:
+                walk(child, parts, node, parent)
 
     walk(root)
     return tuple(found)
 
 
 def from_snapshot(root: SaveNode, path: str | PathLike[str]) -> GameState:
-    farmers = tuple(player_nodes(root))
+    index = build_index(root)
+    farmers = tuple(player_nodes(root, index))
     players = tuple(
         player_state(node, root.find("stats") if index == 0 else None)
         for index, node in enumerate(farmers)
     )
     luck = root.value("dailyLuck")
+    if luck is not None:
+        try:
+            luck = float(luck)
+            if not math.isfinite(luck):
+                raise ValueError("non-finite number")
+        except ValueError as error:
+            raise SaveError(f"Invalid finite number in dailyLuck: {luck}") from error
     game_id = integer(root, "uniqueIDForThisGame")
     if game_id is None or not -(1 << 63) <= game_id < (1 << 63):
         raise SaveError("uniqueIDForThisGame must be a signed 64-bit integer.")
@@ -316,11 +376,21 @@ def from_snapshot(root: SaveNode, path: str | PathLike[str]) -> GameState:
             museum_items=tuple(
                 item.text("") for item in node.findall("museumPieces/item/value/*")
             ),
+            objects=tuple(
+                PlacedObjectState(
+                    entry.value("value/Object/itemId")
+                    or entry.value("value/Object/parentSheetIndex"),
+                    integer(entry, "key/Vector2/X"),
+                    integer(entry, "key/Vector2/Y"),
+                )
+                for entry in node.findall("objects/item")
+            ),
+            bridge_fixed=boolean(node, "bridgeFixed"),
         )
         for node in root.findall("locations/*")
     )
     animals, seen_animals = [], set()
-    for node in root.iter("FarmAnimal"):
+    for node in index.by_tag.get("FarmAnimal", ()):
         animal_id = integer(node, "myID")
         # Saves can serialize the same herd under both animals and Animals.
         if animal_id is not None and animal_id in seen_animals:
@@ -352,10 +422,10 @@ def from_snapshot(root: SaveNode, path: str | PathLike[str]) -> GameState:
         root,
         npcs=tuple(
             NpcState(npc.value("name"), frozenset(npc.attributes.values()))
-            for npc in root.findall(".//characters/NPC")
+            for npc in index.characters
         ),
         child_count=sum(
-            "Child" in npc.attributes.values() for npc in root.findall(".//NPC")
+            "Child" in npc.attributes.values() for npc in index.by_tag.get("NPC", ())
         ),
         qi_crops_active=any(
             "DROP_QI_BEANS" in (order.value("specialRule") or "")
@@ -371,8 +441,19 @@ def from_snapshot(root: SaveNode, path: str | PathLike[str]) -> GameState:
         lost_books_found=integer(root, "lostBooksFound"),
         golden_coconut_cracked=boolean(root, "goldenCoconutCracked"),
         game_version_label=root.value("gameVersionLabel"),
+        active_order_keys=frozenset(
+            order.value("questKey", "")
+            for order in root.findall("specialOrders/*")
+            if order.value("questState") == "InProgress"
+        ),
+        active_order_rules=frozenset(
+            rule
+            for order in root.findall("specialOrders/*")
+            if order.value("questState") == "InProgress"
+            for rule in order.value("specialRule", "").split(",")
+        ),
     )
-    return GameState(Path(path), metadata, players, world, root)
+    return GameState(Path(path), metadata, players, world, root, index)
 
 
 def resolve_save(value: str | PathLike[str]) -> Path:
@@ -387,7 +468,7 @@ def resolve_save(value: str | PathLike[str]) -> Path:
 def load_save(value: str | PathLike[str]) -> GameState:
     path = resolve_save(value)
     with path.open("rb") as source:
-        data = source.read(MAX_SAVE_BYTES + 1)
+        data = read_bounded(source, MAX_SAVE_BYTES)
     if len(data) > MAX_SAVE_BYTES:
         raise SaveError("Save exceeds the 128 MiB input limit.")
     if not data:

@@ -10,6 +10,7 @@ from ..report_support import (
     random_seed,
     set_slot,
 )
+from .seasonal_seeds import raccoon_seeds
 
 
 def predict_raccoon(
@@ -55,6 +56,11 @@ def predict_raccoon(
                 s += 1
         _request_contents(context, which_bundle, rng, bundle_item, bundle_qty, is_long)
         _reward_contents(save, table_row, bundle_item, bundle_qty)
+        reward_alternatives = (
+            raccoon_seeds(None, bundle_qty[2])[1]
+            if bundle_item[2] == "Raccoon Seeds"
+            else ()
+        )
         i = 0
         capture(
             context,
@@ -65,10 +71,56 @@ def predict_raccoon(
                 "bundleItem": bundle_item,
                 "bundleQty": bundle_qty,
                 "isLong": is_long,
+                "rewardAlternatives": reward_alternatives,
+                **_saved_request_state(save, times_fed),
             },
         )
         g += 1
     return None
+
+
+def _saved_request_state(save, times_fed):
+    if "raccoonBundleSeason" not in save:
+        return {}
+    current = times_fed == save["timesFedRaccoons"]
+    if not current:
+        return {
+            "requestState": "future"
+            if times_fed > save["timesFedRaccoons"]
+            else "past",
+            "requestSeason": None,
+            "deliveredSlots": (),
+            "requestConditions": "Request season is fixed on first activation, advancing to the next season after day 21; future rows do not update the saved bundle",
+        }
+    season = save.get("raccoonBundleSeason")
+    day = save.get("daysPlayed")
+    last = save.get("raccoonLastCompletedDay")
+    ready_day = last + 8 if times_fed and last is not None else None
+    if season in (0, 1, 2, 3):
+        status = "active"
+        condition = (
+            "Saved request season, even if the calendar season has since changed"
+        )
+    elif season == -1 and day is not None and (not times_fed or ready_day is not None):
+        if ready_day is not None and day < ready_day:
+            status = "cooldown"
+            season = None
+            condition = "Seven days must pass after the previous completion; season locks when the next request is activated"
+        else:
+            status = "ready_to_activate"
+            season = ((day - 1) // 28 + ((day - 1) % 28 + 1 > 21)) % 4
+            condition = "If activated on the saved day; delaying activation can change the request season"
+    else:
+        status = "unknown"
+        season = None
+        condition = "Saved request season or cooldown data is missing; seasonal choices remain conditional"
+    return {
+        "requestState": status,
+        "requestSeason": season,
+        "deliveredSlots": save.get("raccoonBundleComplete", ()),
+        "availableAfterDay": ready_day,
+        "requestConditions": condition,
+    }
 
 
 def _request_contents(context, which_bundle, rng, bundle_item, bundle_qty, is_long):
@@ -122,7 +174,9 @@ def _request_contents(context, which_bundle, rng, bundle_item, bundle_qty, is_lo
             s = 0
             while s < 4:
                 index = prev_roll[int(s)]
-                while index == prev_roll[int(s)]:
+                while (
+                    choice[int(s)][int(index)] == choice[int(s)][int(prev_roll[int(s)])]
+                ):
                     index = rng[int(s)].next(len(choice[int(s)]))
                 set_slot(
                     bundle_item[1],
@@ -171,7 +225,9 @@ def _request_contents(context, which_bundle, rng, bundle_item, bundle_qty, is_lo
             s = 0
             while s < 4:
                 index = prev_roll[int(s)]
-                while index == prev_roll[int(s)]:
+                while (
+                    choice[int(s)][int(index)] == choice[int(s)][int(prev_roll[int(s)])]
+                ):
                     index = rng[int(s)].next(len(choice[int(s)]))
                 set_slot(
                     bundle_item[1],
@@ -223,7 +279,7 @@ def _reward_contents(save, table_row, bundle_item, bundle_qty):
             set_slot(bundle_item, 2, "Raccoon Hat")
         case 4:
             set_slot(bundle_item, 2, "Fairy Dust")
-            set_slot(bundle_qty, 2, 7)
+            set_slot(bundle_qty, 2, 5)
         case 5:
             set_slot(bundle_item, 2, "Jungle Tank")
         case _:

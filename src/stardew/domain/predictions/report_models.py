@@ -1,8 +1,10 @@
 """Immutable facts returned by the deterministic report prediction rules."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TypeAlias
-from collections.abc import Mapping
+
+from stardew.domain.values import finite_number
 
 FactValue: TypeAlias = (
     str
@@ -29,9 +31,9 @@ class ReportPredictionOptions:
     def __post_init__(self) -> None:
         for name in ("start", "count", "day_offset", "luck_level", "game_start"):
             value = getattr(self, name)
-            if value is not None and (
-                isinstance(value, bool) or not isinstance(value, int)
-            ):
+            if value is None and name in ("start", "count"):
+                continue
+            if isinstance(value, bool) or not isinstance(value, int):
                 raise TypeError(f"{name} must be an integer")
         if self.player_indices is not None:
             indices = tuple(self.player_indices)
@@ -40,7 +42,19 @@ class ReportPredictionOptions:
                 for index in indices
             ):
                 raise TypeError("player_indices must be a sequence of integers")
-            object.__setattr__(self, "player_indices", indices)
+            if any(index < 0 for index in indices):
+                raise ValueError("player_indices must be nonnegative")
+            object.__setattr__(self, "player_indices", tuple(dict.fromkeys(indices)))
+        if self.daily_luck is not None:
+            object.__setattr__(
+                self, "daily_luck", finite_number(self.daily_luck, "daily_luck")
+            )
+            if not -0.1 <= self.daily_luck <= 0.1:
+                raise ValueError(
+                    "daily_luck must be between -0.1 and 0.1 (before the special charm)"
+                )
+        if self.item_filter is not None and not isinstance(self.item_filter, str):
+            raise TypeError("item_filter must be a string or None")
         if self.game_start < 1:
             raise ValueError("Calico Jack game start must be positive.")
         if self.start is not None and self.start < 1:

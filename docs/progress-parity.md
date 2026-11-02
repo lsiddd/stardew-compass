@@ -61,3 +61,18 @@ To repeat the verification:
 ```sh
 uv run --locked --extra test pytest tests/unit/test_progress.py -q
 ```
+
+## Architecture regression corrections
+
+Progress rules now return category contributions explicitly; perfection reads
+those contributions and preserves independent best-player selection. Friendship
+and collection counters are decoded once during save loading, with exact integer
+precision. Rule-version comparison normalizes trailing zero components.
+
+Report prediction tests retain the historical fixtures but normalize two known
+captured-local defects: garbage stack values could leak into a later can, and
+train times could remain populated when no train arrived. New public-result tests
+assert a day-64 Cookie quantity of one after a four-item Copper Ore drop, and
+require absent trains to have no time. Global features execute once in multiplayer
+reports; player features use that player's counters, unlock flags, mine depth,
+books and charm. No RNG-consuming call was removed to make these corrections.
